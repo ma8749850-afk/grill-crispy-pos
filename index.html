@@ -593,29 +593,45 @@
     let alarmAudioInterval = null;
 
     // جلب الطلبات السحابية فوراً (Cloud Fetch)
-    async function fetchCloudOrders() {
-      try {
-        const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-        if (!error && data) {
-          orders = data.map(row => row.data);
-          refreshUIAfterCloudSync();
-        }
-      } catch (err) {
-        console.error("Cloud fetch error:", err);
-      }
+// جلب الطلبات السحابية مع دمج المحلي كـ Fallback
+async function fetchCloudOrders() {
+  try {
+    const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    if (!error && data && data.length > 0) {
+      orders = data.map(row => row.data);
+      localStorage.setItem('local_backup_orders', JSON.stringify(orders));
+    } else {
+      orders = JSON.parse(localStorage.getItem('local_backup_orders')) || [];
     }
+  } catch (err) {
+    orders = JSON.parse(localStorage.getItem('local_backup_orders')) || [];
+  }
+  refreshUIAfterCloudSync();
+}
 
-    // حفظ / تحديث الطلب سحابياً (Cloud Upsert)
-    async function syncOrderToCloud(order) {
-      try {
-        await supabaseClient.from('orders').upsert({
-          id: order.id,
-          data: order
-        });
-      } catch (err) {
-        console.error("Cloud save error:", err);
-      }
-    }
+// دالة حفظ وتحديث الطلب
+async function syncOrderToCloud(order) {
+  // 1. تحديث المصفوفة محلياً فوراً
+  const existingIdx = orders.findIndex(o => o.id === order.id);
+  if (existingIdx >= 0) {
+    orders[existingIdx] = order;
+  } else {
+    orders.unshift(order);
+  }
+  localStorage.setItem('local_backup_orders', JSON.stringify(orders));
+  refreshUIAfterCloudSync();
+
+  // 2. المزامنة مع سحابة Supabase
+  try {
+    const { error } = await supabaseClient.from('orders').upsert({
+      id: order.id,
+      data: order
+    });
+    if (error) console.error("Supabase Save Error:", error.message);
+  } catch (err) {
+    console.error("Cloud Connection Error:", err);
+  }
+}
 
     // الاشتراك في التحديثات اللحظية (WebSockets Realtime Listener)
     supabaseClient
