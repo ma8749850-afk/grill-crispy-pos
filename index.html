@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grill & Crispy | المنظومة الشاملة للمطاعم</title>
+  <title>Grill & Crispy | المنظومة السحابية المتكاملة</title>
   
-  <!-- Tailwind CSS & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   
+  <!-- مكتبة Supabase السحابية الرسمية -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -56,7 +58,7 @@
 </head>
 <body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen selection:bg-brand-primary selection:text-white">
 
-  <!-- Toast Notification (إشعار ناعم وسريع عند الإضافة) -->
+  <!-- Toast Notification -->
   <div id="toast-notify" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600/95 backdrop-blur-md text-white font-bold text-xs px-5 py-2.5 rounded-2xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4">
     <span id="toast-text">تمت الإضافة للسلة بنجاح</span>
   </div>
@@ -70,7 +72,7 @@
           <div>
             <h1 class="font-black text-base leading-tight">GRILL & CRISPY</h1>
             <p class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> المنيو المباشر
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متصل سحابياً (Realtime)
             </p>
           </div>
         </div>
@@ -113,12 +115,12 @@
       </div>
     </section>
 
-    <!-- Products Grid -->
+    <!-- Menu Grid -->
     <main class="max-w-6xl mx-auto px-4 py-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="items-grid"></div>
     </main>
 
-    <!-- Mobile Sticky Cart -->
+    <!-- Sticky Mobile Cart -->
     <div id="sticky-bar" class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-30 hidden">
       <button onclick="toggleCart(true)" class="w-full bg-brand-primary hover:bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm transition">
         <div class="flex items-center gap-2">
@@ -130,13 +132,13 @@
     </div>
   </div>
 
-  <!-- ================= 2. SECURE LOGIN GATE ================= -->
+  <!-- ================= 2. LOGIN GATE ================= -->
   <div id="view-login-gate" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-black via-brand-card to-brand-black">
     <div class="w-full max-w-md bg-brand-card border border-brand-border p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
       <div class="text-center space-y-2">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center text-2xl">🔐</div>
-        <h2 class="text-xl font-black text-white">تسجيل الدخول للموظفين</h2>
-        <p class="text-xs text-gray-400">بوابة محددة الصلاحيات ومؤمنة</p>
+        <h2 class="text-xl font-black text-white">تسجيل الدخول للنظام</h2>
+        <p class="text-xs text-gray-400">بوابة الموظفين والإدارة</p>
       </div>
 
       <div class="flex bg-brand-black p-1 rounded-xl border border-brand-border text-xs font-bold">
@@ -166,11 +168,10 @@
   <!-- ================= 3. ADMIN POS DASHBOARD ================= -->
   <div id="view-admin-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-brand-black">
     
-    <!-- صوت التنبيه المستمر للطلبات الجديدة -->
     <div id="alarm-banner" class="hidden fixed top-0 inset-x-0 bg-red-600 text-white z-50 p-3 flex items-center justify-between shadow-2xl animate-pulse">
       <div class="flex items-center gap-2 font-black text-sm">
         <span class="text-xl">🔔</span>
-        <span>تنبيه: وصل طلب جديد للمطعم الآن!</span>
+        <span>تنبيه سحابي: وصل طلب جديد للمطعم الآن!</span>
       </div>
       <button onclick="stopOrderAlarm()" class="bg-white text-black font-black text-xs px-4 py-2 rounded-xl shadow hover:bg-gray-200 transition">
         إيقاف صوت الجرس 🔕
@@ -183,7 +184,7 @@
           <div class="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center font-black text-white text-sm">POS</div>
           <div>
             <h3 class="font-black text-xs text-white">إدارة المطعم والكاشير</h3>
-            <p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً</p>
+            <p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً بـ Supabase</p>
           </div>
         </div>
         <nav class="space-y-1.5 text-xs font-bold">
@@ -192,11 +193,11 @@
             <span id="dash-orders-badge" class="bg-black/30 px-2 py-0.5 rounded-md text-[10px]">0</span>
           </button>
           <button onclick="switchAdminSection('settlement')" id="nav-sec-settlement" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>💰 دفتر الخزينة والعهد المالية</span>
+            <span>💰 دفتر الخزينة والعهد</span>
             <span id="dash-unsettled-badge" class="hidden bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px] font-black">0</span>
           </button>
           <button onclick="switchAdminSection('reports')" id="nav-sec-reports" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>📊 تقرير إغلاق الوردية اليومي</span>
+            <span>📊 تقرير إغلاق الوردية</span>
           </button>
           <button onclick="switchAdminSection('couriers')" id="nav-sec-couriers" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
             <span>🛵 حسابات الطيارين</span>
@@ -221,14 +222,14 @@
       <div id="admin-sec-orders" class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
         <div class="w-full md:w-2/5 border-b md:border-b-0 md:border-l border-brand-border flex flex-col h-full bg-brand-card">
           <div class="p-3 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
-            <h3 class="text-xs font-black text-white">الطلبات النشطة بالمطعم</h3>
+            <h3 class="text-xs font-black text-white">الطلبات النشطة</h3>
           </div>
           <div class="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar" id="dash-orders-list"></div>
         </div>
 
         <div class="flex-1 flex flex-col h-full bg-brand-black" id="dash-order-detail-panel">
           <div class="flex-1 flex items-center justify-center p-8 text-center text-gray-500 text-xs">
-            👈 اختر طلباً لمتابعته، طباعة بون المطبخ، أو إسناده للطيار
+            👈 اختر طلباً لمتابعته، طباعة البون، أو إسناده للطيار
           </div>
         </div>
       </div>
@@ -322,7 +323,7 @@
               <img id="meal-preview" src="" class="w-20 h-20 object-cover rounded-xl border border-brand-border" />
             </div>
           </div>
-          <button onclick="saveMeal()" id="meal-submit-btn" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ نشر الوجبة سحابياً</button>
+          <button onclick="saveMeal()" id="meal-submit-btn" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ نشر الوجبة</button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="dash-meals-grid"></div>
       </div>
@@ -354,7 +355,7 @@
         <div class="w-10 h-10 rounded-xl bg-brand-courier flex items-center justify-center font-black text-white text-lg">🛵</div>
         <div>
           <h2 class="font-black text-sm text-white" id="courier-welcome-name">كابتن التوصيل</h2>
-          <p class="text-[10px] text-emerald-400 font-bold">● نظام التوصيل المحمي</p>
+          <p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً</p>
         </div>
       </div>
       <button onclick="handleLogout()" class="text-xs text-red-400 bg-red-500/10 px-3 py-1.5 rounded-xl border border-red-500/20 font-bold">تسجيل الخروج</button>
@@ -416,7 +417,7 @@
         <input type="text" id="customizer-notes" placeholder="مثال: بدون بصل، صوص حار زيادة..." class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
       </div>
 
-      <!-- عداد الكمية قبل الإضافة -->
+      <!-- عداد الكمية -->
       <div class="flex items-center justify-between bg-brand-black p-3 rounded-2xl border border-brand-border">
         <span class="text-xs font-bold text-gray-300">الكمية المطلوبة:</span>
         <div class="flex items-center gap-3">
@@ -541,9 +542,15 @@
     </div>
   </div>
 
-  <!-- ================= JAVASCRIPT ENGINE ================= -->
+  <!-- ================= JAVASCRIPT CLOUD ENGINE ================= -->
   <script>
-    // 1. Initial State & Self-Healing Data Logic
+    // 1. Supabase Realtime Initialization
+    const SUPABASE_URL = "https://iugxobtoeowdfgfxmdmh.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_LZHe7rl-SDSvWUF2gedu4w_lg59gDI_";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Initial Static Fallback Products & Couriers
     const initialProducts = [
       { id: 101, category: 'burgers', name: 'تريبل سماش برجر ديلوكس', price: 165, inStock: true, desc: '3 قطع لحم بلدي، 3 شرائح شيدر، بيف بيكون وصوص سماش.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
       { id: 102, category: 'crispy', name: 'باكت كرسبي سوبريم 6 قطع', price: 180, inStock: true, desc: '6 قطع استربس، بطاطس عائلي، 2 كول سلو، 2 صوص و2 خبز.', img: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&auto=format&fit=crop&q=80' },
@@ -559,17 +566,10 @@
       { id: 'c2', name: 'كابتن طارق علي', phone: '01033334444', pin: '3344' }
     ];
 
-    // Load or Auto-Recover
-    let storedProducts = JSON.parse(localStorage.getItem('sync_products_v4'));
-    let products = (storedProducts && storedProducts.length > 0) ? storedProducts : initialProducts;
-
-    let storedDeals = JSON.parse(localStorage.getItem('sync_deals_v4'));
-    let deals = (storedDeals && storedDeals.length > 0) ? storedDeals : initialDeals;
-
-    let storedCouriers = JSON.parse(localStorage.getItem('sync_couriers_v4'));
-    let couriers = (storedCouriers && storedCouriers.length > 0) ? storedCouriers : initialCouriers;
-
-    let orders = JSON.parse(localStorage.getItem('sync_orders_v4')) || [];
+    let products = JSON.parse(localStorage.getItem('cloud_products')) || initialProducts;
+    let deals = JSON.parse(localStorage.getItem('cloud_deals')) || initialDeals;
+    let couriers = JSON.parse(localStorage.getItem('cloud_couriers')) || initialCouriers;
+    let orders = [];
 
     let cart = [];
     let appliedDiscountPercent = 0;
@@ -592,26 +592,40 @@
     let tempDealImg = '';
     let alarmAudioInterval = null;
 
-    function syncState() {
-      localStorage.setItem('sync_products_v4', JSON.stringify(products));
-      localStorage.setItem('sync_deals_v4', JSON.stringify(deals));
-      localStorage.setItem('sync_couriers_v4', JSON.stringify(couriers));
-      localStorage.setItem('sync_orders_v4', JSON.stringify(orders));
-      window.dispatchEvent(new Event('storage'));
+    // جلب الطلبات السحابية فوراً (Cloud Fetch)
+    async function fetchCloudOrders() {
+      try {
+        const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+        if (!error && data) {
+          orders = data.map(row => row.data);
+          refreshUIAfterCloudSync();
+        }
+      } catch (err) {
+        console.error("Cloud fetch error:", err);
+      }
     }
 
-    window.addEventListener('storage', () => {
-      let sp = JSON.parse(localStorage.getItem('sync_products_v4'));
-      products = (sp && sp.length > 0) ? sp : initialProducts;
+    // حفظ / تحديث الطلب سحابياً (Cloud Upsert)
+    async function syncOrderToCloud(order) {
+      try {
+        await supabaseClient.from('orders').upsert({
+          id: order.id,
+          data: order
+        });
+      } catch (err) {
+        console.error("Cloud save error:", err);
+      }
+    }
 
-      let sd = JSON.parse(localStorage.getItem('sync_deals_v4'));
-      deals = (sd && sd.length > 0) ? sd : initialDeals;
+    // الاشتراك في التحديثات اللحظية (WebSockets Realtime Listener)
+    supabaseClient
+      .channel('orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+        fetchCloudOrders();
+      })
+      .subscribe();
 
-      couriers = JSON.parse(localStorage.getItem('sync_couriers_v4')) || initialCouriers;
-      orders = JSON.parse(localStorage.getItem('sync_orders_v4')) || [];
-      
-      renderProducts(products);
-      renderSlider();
+    function refreshUIAfterCloudSync() {
       renderCustomerOrders();
       if (authRole === 'admin') {
         renderDashboardOrders();
@@ -624,9 +638,15 @@
         renderCourierDashboard();
       }
       if (activeCustChatOrderId) renderCustChatMessages();
-    });
+    }
 
-    // 2. Navigation & Login Gateway
+    function syncLocalSettings() {
+      localStorage.setItem('cloud_products', JSON.stringify(products));
+      localStorage.setItem('cloud_deals', JSON.stringify(deals));
+      localStorage.setItem('cloud_couriers', JSON.stringify(couriers));
+    }
+
+    // 2. Navigation & Login
     function navigateView(viewName) {
       document.getElementById('view-storefront').classList.toggle('hidden', viewName !== 'storefront');
       document.getElementById('view-login-gate').classList.toggle('hidden', viewName !== 'login-gate');
@@ -708,7 +728,7 @@
       navigateView('storefront');
     }
 
-    // 3. Audio Alarm
+    // 3. Sound Alarm
     function checkNewOrdersAlarm() {
       const hasPending = orders.some(o => o.status === 'pending');
       const banner = document.getElementById('alarm-banner');
@@ -748,7 +768,7 @@
       document.getElementById('alarm-banner').classList.add('hidden');
     }
 
-    // 4. Products & Customizer Modal
+    // 4. Customizer & Storefront
     function renderProducts(items) {
       const grid = document.getElementById('items-grid');
       grid.innerHTML = items.map(item => `
@@ -886,9 +906,7 @@
     function changeCartItemQty(index, delta) {
       if (!cart[index]) return;
       cart[index].qty += delta;
-      if (cart[index].qty <= 0) {
-        cart.splice(index, 1);
-      }
+      if (cart[index].qty <= 0) cart.splice(index, 1);
       updateCartState();
     }
 
@@ -897,7 +915,7 @@
       updateCartState();
     }
 
-    // 5. Cart & Orders
+    // 5. Cart & Order Placement
     function updateCartState() {
       const container = document.getElementById('cart-items-container');
       const deliveryFee = parseInt(document.getElementById('delivery-zone').value) || 15;
@@ -956,7 +974,7 @@
 
       if (code === 'GRILL20') {
         appliedDiscountPercent = 20;
-        msg.innerText = '✅ تم تطبيق خصم 20% بنجاح على الفاتورة!';
+        msg.innerText = '✅ تم تطبيق خصم 20% بنجاح!';
         msg.className = 'text-[11px] font-bold text-emerald-400';
         msg.classList.remove('hidden');
       } else if (code === 'CRISPY10') {
@@ -966,7 +984,7 @@
         msg.classList.remove('hidden');
       } else {
         appliedDiscountPercent = 0;
-        msg.innerText = '❌ كود غير صحيح أو منتهي الصلاحية';
+        msg.innerText = '❌ كود غير صحيح';
         msg.className = 'text-[11px] font-bold text-red-400';
         msg.classList.remove('hidden');
       }
@@ -990,7 +1008,7 @@
       );
     }
 
-    function placeInAppOrder() {
+    async function placeInAppOrder() {
       if (cart.length === 0) return alert('السلة فارغة!');
 
       const name = document.getElementById('cust-name').value.trim();
@@ -1035,10 +1053,10 @@
         ]
       };
 
-      orders.unshift(newOrder);
+      await syncOrderToCloud(newOrder);
+
       cart = [];
       appliedDiscountPercent = 0;
-      syncState();
       updateCartState();
       toggleCart(false);
 
@@ -1048,7 +1066,7 @@
       document.getElementById('cust-geo-coords').value = '';
       document.getElementById('gps-btn').innerText = '📍 تحديد موقعي الحالي عبر GPS';
 
-      alert(`🎉 تم إرسال طلبك رقم: ${orderId}`);
+      alert(`🎉 تم إرسال طلبك سحابياً رقم: ${orderId}`);
       toggleCustomerOrders(true);
     }
 
@@ -1173,12 +1191,12 @@
       });
     }
 
-    function submitRating() {
+    async function submitRating() {
       const order = orders.find(o => o.id === activeCustChatOrderId);
       if (order) {
         order.rating = selectedRatingValue;
         order.ratingFeedback = document.getElementById('rating-feedback').value.trim();
-        syncState();
+        await syncOrderToCloud(order);
         document.getElementById('rating-modal').classList.add('hidden');
         renderCustomerOrders();
         alert('شكراً لتقييمك الرائع! ❤️');
@@ -1223,7 +1241,7 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    function sendCustMessage() {
+    async function sendCustMessage() {
       const input = document.getElementById('cust-chat-input');
       const text = input.value.trim();
       if (!text || !activeCustChatOrderId) return;
@@ -1236,13 +1254,13 @@
           text: text,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
         });
-        syncState();
+        await syncOrderToCloud(order);
         renderCustChatMessages();
         input.value = '';
       }
     }
 
-    // 8. Admin Dashboard & Split Chat
+    // 8. Admin Orders & Dashboard
     function switchAdminSection(sec) {
       ['orders', 'settlement', 'reports', 'couriers', 'meals', 'banners'].forEach(s => {
         document.getElementById(`admin-sec-${s}`).classList.toggle('hidden', s !== sec);
@@ -1393,7 +1411,7 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    function sendAdminMessage(orderId) {
+    async function sendAdminMessage(orderId) {
       const input = document.getElementById('admin-chat-input');
       const text = input.value.trim();
       if (!text) return;
@@ -1406,14 +1424,14 @@
           text: text,
           time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
         });
-        syncState();
+        await syncOrderToCloud(order);
         renderAdminChatMessages(order);
         renderDashboardOrders();
         input.value = '';
       }
     }
 
-    function assignCourierToOrder(orderId, courierId) {
+    async function assignCourierToOrder(orderId, courierId) {
       const order = orders.find(o => o.id === orderId);
       if (order) {
         order.assignedCourierId = courierId || null;
@@ -1426,18 +1444,18 @@
             time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
           });
         }
-        syncState();
+        await syncOrderToCloud(order);
         renderDashboardOrders();
         selectAdminOrder(orderId);
       }
     }
 
-    function updateOrderStatus(orderId, newStatus) {
+    async function updateOrderStatus(orderId, newStatus) {
       const order = orders.find(o => o.id === orderId);
       if (order) {
         order.status = newStatus;
         if (newStatus !== 'pending') stopOrderAlarm();
-        syncState();
+        await syncOrderToCloud(order);
         renderDashboardOrders();
         renderSettlementRegister();
         renderDailyReport();
@@ -1548,15 +1566,15 @@
       }).join('');
     }
 
-    function settleAllCourierCash(courierId, totalAmount) {
+    async function settleAllCourierCash(courierId, totalAmount) {
       if (confirm(`تأكيد استلام (${totalAmount} ج.م) كاش وتصفية عهدة الكابتن؟`)) {
-        orders.forEach(o => {
+        for (const o of orders) {
           if (o.assignedCourierId === courierId && (o.status === 'delivered' || o.status === 'onway')) {
             o.cashSettled = true;
             o.status = 'settled';
+            await syncOrderToCloud(o);
           }
-        });
-        syncState();
+        }
         renderSettlementRegister();
         renderDashboardOrders();
         renderDailyReport();
@@ -1602,7 +1620,7 @@
       }).join('');
     }
 
-    function confirmCourierDeliveredToCust(orderId) {
+    async function confirmCourierDeliveredToCust(orderId) {
       if (confirm('تأكيد تسليم الوجبة للعميل واستلام المبلغ؟')) {
         const order = orders.find(o => o.id === orderId);
         if (order) {
@@ -1612,19 +1630,19 @@
             text: 'تم تسليم الطلب للعميل بنجاح، بالهناء والشفاء! ✅',
             time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
           });
-          syncState();
+          await syncOrderToCloud(order);
           renderCourierDashboard();
           alert('تم التسليم بنجاح! المبلغ مقيد في عهدتك حتى توريده للكاشير.');
         }
       }
     }
 
-    // 11. Meals Management & Stock Control
+    // 11. Meals & Couriers Local Management
     function toggleMealStock(id) {
       const item = products.find(p => p.id === id);
       if (item) {
         item.inStock = !item.inStock;
-        syncState();
+        syncLocalSettings();
         renderDashboardMeals();
         renderProducts(products);
       }
@@ -1685,7 +1703,7 @@
           img: tempMealImg || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500'
         });
       }
-      syncState();
+      syncLocalSettings();
       resetMealForm();
       renderDashboardMeals();
       filterCategory(currentCategory);
@@ -1707,7 +1725,7 @@
       if (confirm('حذف هذه الوجبة؟')) {
         products = products.filter(p => p.id !== id);
         deals = deals.filter(d => d.linkedItemId !== id);
-        syncState();
+        syncLocalSettings();
         renderDashboardMeals();
         filterCategory(currentCategory);
       }
@@ -1734,7 +1752,7 @@
       if (!name || !pin) return alert('يرجى كتابة اسم الطيار وكود الدخول');
 
       couriers.push({ id: 'c_' + Date.now(), name: name, phone: phone || '---', pin: pin });
-      syncState();
+      syncLocalSettings();
       renderAdminCouriersList();
       renderSettlementRegister();
       document.getElementById('new-courier-name').value = '';
@@ -1745,7 +1763,7 @@
     function deleteCourier(id) {
       if (confirm('حذف حساب هذا الطيار؟')) {
         couriers = couriers.filter(c => c.id !== id);
-        syncState();
+        syncLocalSettings();
         renderAdminCouriersList();
         renderSettlementRegister();
       }
@@ -1796,7 +1814,7 @@
       if (!title || !tempDealImg) return alert('يرجى وضع العنوان ورفع البنر');
 
       deals.unshift({ id: Date.now(), title: title, linkedItemId: linkedId, bannerImg: tempDealImg });
-      syncState();
+      syncLocalSettings();
       renderDashboardBanners();
       renderSlider();
       document.getElementById('deal-title').value = '';
@@ -1808,7 +1826,7 @@
     function deleteDeal(id) {
       if (confirm('حذف هذا البنر؟')) {
         deals = deals.filter(d => d.id !== id);
-        syncState();
+        syncLocalSettings();
         renderDashboardBanners();
         renderSlider();
       }
@@ -1839,7 +1857,8 @@
       else renderProducts(products.filter(p => p.category === cat));
     }
 
-    // 12. App Bootstrapping
+    // 12. App Initialization
+    fetchCloudOrders();
     renderProducts(products);
     renderSlider();
     filterCategory('all');
