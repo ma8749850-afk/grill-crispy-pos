@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grill & Crispy | المنظومة السحابية المتكاملة</title>
+  <title>Grill & Crispy | المنظومة السحابية الشاملة</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Supabase Cloud SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -30,26 +34,36 @@
       }
     }
   </script>
+
   <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
     @media print {
       body * { visibility: hidden; }
       #thermal-receipt, #thermal-receipt * { visibility: visible; }
       #thermal-receipt {
-        display: block !important; position: absolute; left: 0; top: 0; width: 80mm; padding: 10px; color: #000; background: #fff;
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        margin: 0;
+        padding: 10px;
+        color: #000;
+        background: #fff;
       }
     }
   </style>
 </head>
 <body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen selection:bg-brand-primary selection:text-white">
 
-  <!-- Toast -->
+  <!-- Toast Notification (إشعار إضافة هادئ بدون مقاطعة التصفح) -->
   <div id="toast-notify" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600/95 backdrop-blur-md text-white font-bold text-xs px-5 py-2.5 rounded-2xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4">
     <span id="toast-text">تمت الإضافة للسلة بنجاح</span>
   </div>
 
-  <!-- Storefront -->
+  <!-- ================= 1. STOREFRONT VIEW ================= -->
   <div id="view-storefront" class="min-h-screen pb-28">
     <header class="sticky top-0 z-40 bg-brand-black/95 backdrop-blur-md border-b border-brand-border px-4 py-3">
       <div class="max-w-6xl mx-auto flex items-center justify-between">
@@ -58,18 +72,21 @@
           <div>
             <h1 class="font-black text-base leading-tight">GRILL & CRISPY</h1>
             <p class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متصل سحابياً
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> المنيو المباشر السحابي
             </p>
           </div>
         </div>
+
         <div class="flex items-center gap-2">
           <button onclick="toggleCustomerOrders(true)" class="relative bg-brand-card hover:bg-brand-cardLight border border-brand-border px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
             <span>📦 طلباتي</span>
             <span id="cust-orders-badge" class="hidden bg-emerald-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
           </button>
+          
           <button onclick="navigateView('login-gate')" class="text-xs bg-brand-card hover:bg-brand-cardLight text-gray-300 border border-brand-border px-3 py-2 rounded-xl transition flex items-center gap-1 font-bold">
             <span>🔒 تسجيل الدخول</span>
           </button>
+
           <button onclick="toggleCart(true)" class="relative bg-brand-card hover:bg-brand-cardLight border border-brand-border px-3.5 py-2 rounded-xl flex items-center gap-2 transition text-sm font-bold">
             <span>🛒 السلة</span>
             <span id="nav-cart-badge" class="bg-brand-primary text-white text-xs px-2 py-0.5 rounded-full font-black">0</span>
@@ -77,6 +94,16 @@
         </div>
       </div>
     </header>
+
+    <!-- Slider العروض والبنرات -->
+    <section class="max-w-6xl mx-auto px-4 pt-4 pb-2" id="hero-slider-section">
+      <div class="relative overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-2xl">
+        <div id="slider-track" class="flex transition-transform duration-500 ease-out"></div>
+        <button onclick="prevSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10">❯</button>
+        <button onclick="nextSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10">❮</button>
+        <div id="slider-dots" class="absolute bottom-3 inset-x-0 flex justify-center gap-2 z-10"></div>
+      </div>
+    </section>
 
     <!-- Categories -->
     <section class="sticky top-[61px] z-30 bg-brand-black/95 backdrop-blur-md py-3 border-b border-brand-border">
@@ -88,12 +115,12 @@
       </div>
     </section>
 
-    <!-- Grid -->
+    <!-- Menu Grid -->
     <main class="max-w-6xl mx-auto px-4 py-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="items-grid"></div>
     </main>
 
-    <!-- Sticky Mobile Bar -->
+    <!-- Mobile Sticky Cart -->
     <div id="sticky-bar" class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-30 hidden">
       <button onclick="toggleCart(true)" class="w-full bg-brand-primary hover:bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm transition">
         <div class="flex items-center gap-2">
@@ -105,148 +132,260 @@
     </div>
   </div>
 
-  <!-- Login Gate -->
+  <!-- ================= 2. SECURE LOGIN GATE ================= -->
   <div id="view-login-gate" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-black via-brand-card to-brand-black">
     <div class="w-full max-w-md bg-brand-card border border-brand-border p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
       <div class="text-center space-y-2">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center text-2xl">🔐</div>
-        <h2 class="text-xl font-black text-white">تسجيل الدخول للنظام</h2>
-        <p class="text-xs text-gray-400">بوابة الإدارة والطيارين</p>
+        <h2 class="text-xl font-black text-white">تسجيل الدخول للموظفين</h2>
+        <p class="text-xs text-gray-400">بوابة محددة الصلاحيات ومؤمنة</p>
       </div>
+
       <div class="flex bg-brand-black p-1 rounded-xl border border-brand-border text-xs font-bold">
         <button onclick="setLoginRole('admin')" id="role-btn-admin" class="flex-1 py-2 rounded-lg bg-brand-primary text-white transition">👨‍🍳 الإدارة والكاشير</button>
         <button onclick="setLoginRole('courier')" id="role-btn-courier" class="flex-1 py-2 rounded-lg text-gray-400 transition">🛵 كابتن التوصيل</button>
       </div>
+
       <form onsubmit="event.preventDefault(); handleUnifiedLogin();" class="space-y-4" autocomplete="off">
         <div id="field-username-box">
           <label class="block text-xs font-bold text-gray-300 mb-1">اسم المستخدم</label>
-          <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" class="w-full bg-brand-black border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-primary" />
+          <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" autocomplete="off" class="w-full bg-brand-black border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-primary" />
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-300 mb-1" id="label-password">كلمة المرور المشفرة</label>
-          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-brand-black border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-primary" />
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-brand-black border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-primary" />
         </div>
         <div id="login-error-msg" class="hidden text-xs text-brand-primary font-bold text-center">بيانات الدخول غير صحيحة!</div>
         <button type="submit" class="w-full bg-brand-primary hover:bg-red-600 text-white font-black py-3 rounded-xl transition text-xs shadow-lg">تسجيل الدخول 👈</button>
       </form>
+
       <div class="text-center border-t border-brand-border pt-4">
         <button onclick="navigateView('storefront')" class="text-xs text-gray-400 hover:text-white transition">← الرجوع للمتجر</button>
       </div>
     </div>
   </div>
 
-  <!-- Admin Dashboard -->
+  <!-- ================= 3. ADMIN POS DASHBOARD ================= -->
   <div id="view-admin-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-brand-black">
+    
+    <!-- صوت التنبيه المستمر للطلبات الجديدة -->
     <div id="alarm-banner" class="hidden fixed top-0 inset-x-0 bg-red-600 text-white z-50 p-3 flex items-center justify-between shadow-2xl animate-pulse">
-      <div class="flex items-center gap-2 font-black text-sm"><span>🔔</span><span>تنبيه: وصل طلب جديد للمطعم!</span></div>
-      <button onclick="stopOrderAlarm()" class="bg-white text-black font-black text-xs px-4 py-2 rounded-xl shadow hover:bg-gray-200 transition">إيقاف التنبيه 🔕</button>
+      <div class="flex items-center gap-2 font-black text-sm">
+        <span class="text-xl">🔔</span>
+        <span>تنبيه سحابي: وصل طلب جديد للمطعم الآن!</span>
+      </div>
+      <button onclick="stopOrderAlarm()" class="bg-white text-black font-black text-xs px-4 py-2 rounded-xl shadow hover:bg-gray-200 transition">
+        إيقاف صوت الجرس 🔕
+      </button>
     </div>
+
     <aside class="w-full md:w-64 bg-brand-sidebar border-b md:border-b-0 md:border-l border-brand-border flex flex-col justify-between p-4 flex-shrink-0">
       <div class="space-y-6">
         <div class="flex items-center gap-2 pb-4 border-b border-brand-border">
           <div class="w-9 h-9 rounded-xl bg-brand-primary flex items-center justify-center font-black text-white text-sm">POS</div>
-          <div><h3 class="font-black text-xs text-white">لوحة الإدارة والكاشير</h3><p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً</p></div>
+          <div>
+            <h3 class="font-black text-xs text-white">إدارة المطعم والكاشير</h3>
+            <p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً (Supabase)</p>
+          </div>
         </div>
         <nav class="space-y-1.5 text-xs font-bold">
           <button onclick="switchAdminSection('orders')" id="nav-sec-orders" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-primary text-white transition">
-            <span>🔔 الطلبات الحية</span><span id="dash-orders-badge" class="bg-black/30 px-2 py-0.5 rounded-md text-[10px]">0</span>
+            <span>🔔 الطلبات الحية والشات</span>
+            <span id="dash-orders-badge" class="bg-black/30 px-2 py-0.5 rounded-md text-[10px]">0</span>
           </button>
           <button onclick="switchAdminSection('settlement')" id="nav-sec-settlement" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>💰 دفتر الخزينة والعهد</span><span id="dash-unsettled-badge" class="hidden bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px] font-black">0</span>
+            <span>💰 دفتر الخزينة والعهد المالية</span>
+            <span id="dash-unsettled-badge" class="hidden bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px] font-black">0</span>
           </button>
           <button onclick="switchAdminSection('reports')" id="nav-sec-reports" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>📊 تقرير الوردية</span>
+            <span>📊 تقرير إغلاق الوردية اليومي</span>
+          </button>
+          <button onclick="switchAdminSection('couriers')" id="nav-sec-couriers" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
+            <span>🛵 حسابات الطيارين</span>
           </button>
           <button onclick="switchAdminSection('meals')" id="nav-sec-meals" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
             <span>🍔 قائمة الوجبات (سحابية)</span>
           </button>
+          <button onclick="switchAdminSection('banners')" id="nav-sec-banners" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
+            <span>⚡ بنرات السلايدر</span>
+          </button>
         </nav>
       </div>
+
       <div class="pt-4 border-t border-brand-border space-y-2">
         <button onclick="navigateView('storefront')" class="w-full text-xs text-gray-300 bg-brand-card p-2 rounded-xl border border-brand-border font-bold">🌐 عرض المتجر</button>
         <button onclick="handleLogout()" class="w-full text-xs text-red-400 hover:bg-red-500/20 p-2 rounded-xl transition font-bold">🚪 تسجيل الخروج</button>
       </div>
     </aside>
+
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
-      <!-- Admin Orders -->
+      <!-- Section 1: Orders & Live Split Chat -->
       <div id="admin-sec-orders" class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
         <div class="w-full md:w-2/5 border-b md:border-b-0 md:border-l border-brand-border flex flex-col h-full bg-brand-card">
           <div class="p-3 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
-            <h3 class="text-xs font-black text-white">الطلبات النشطة</h3>
+            <h3 class="text-xs font-black text-white">الطلبات النشطة بالمطعم</h3>
           </div>
           <div class="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar" id="dash-orders-list"></div>
         </div>
+
         <div class="flex-1 flex flex-col h-full bg-brand-black" id="dash-order-detail-panel">
-          <div class="flex-1 flex items-center justify-center p-8 text-center text-gray-500 text-xs">👈 اختر طلباً لعرض تفاصيله</div>
+          <div class="flex-1 flex items-center justify-center p-8 text-center text-gray-500 text-xs">
+            👈 اختر طلباً لمتابعته، طباعة بون المطبخ، إسناده للطيار، أو التحدث المباشر
+          </div>
         </div>
       </div>
 
-      <!-- Settlement -->
+      <!-- Section 2: Cash Settlement -->
       <div id="admin-sec-settlement" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
         <div class="flex items-center justify-between">
-          <div><h3 class="text-base font-black text-white">💰 دفتر تصفية عهد الطيارين</h3><p class="text-xs text-gray-400">الطلبات المسلمة وبانتظار التوريد</p></div>
+          <div>
+            <h3 class="text-base font-black text-white">💰 دفتر تصفية عهد الطيارين وتوريد الخزينة</h3>
+            <p class="text-xs text-gray-400">الطلبات المسلمة وبانتظار تسليم الكاش للكاشير</p>
+          </div>
           <div class="bg-brand-card border border-brand-border p-3 rounded-2xl text-right">
-            <span class="text-[11px] text-gray-400 block">إجمالي المعلق:</span><span class="text-lg font-black text-amber-400" id="total-pending-cash">0 ج.م</span>
+            <span class="text-[11px] text-gray-400 block">إجمالي العهد المعلقة:</span>
+            <span class="text-lg font-black text-amber-400" id="total-pending-cash">0 ج.م</span>
           </div>
         </div>
         <div class="space-y-4" id="courier-settlements-container"></div>
       </div>
 
-      <!-- Reports -->
+      <!-- Section 3: Daily Shift Report -->
       <div id="admin-sec-reports" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
-        <h3 class="text-base font-black text-white">📊 تقرير إغلاق الوردية</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="bg-brand-card border border-brand-border p-4 rounded-3xl"><span class="text-xs text-gray-400">إجمالي المبيعات المحصلة:</span><p class="text-2xl font-black text-emerald-400" id="report-total-revenue">0 ج.م</p></div>
-          <div class="bg-brand-card border border-brand-border p-4 rounded-3xl"><span class="text-xs text-gray-400">الطلبات المنفذة:</span><p class="text-2xl font-black text-brand-accent" id="report-total-orders">0</p></div>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-black text-white">📊 تقرير إغلاق الوردية والمبيعات اليومية</h3>
+            <p class="text-xs text-gray-400">ملخص الإيرادات والأصناف المباعة لليوم</p>
+          </div>
+          <button onclick="window.print()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+            🖨️ طباعة التقرير
+          </button>
         </div>
-        <div class="bg-brand-card border border-brand-border p-5 rounded-3xl space-y-3" id="report-orders-table"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-1">
+            <span class="text-xs text-gray-400">إجمالي المبيعات المحصلة (كاش):</span>
+            <p class="text-2xl font-black text-emerald-400" id="report-total-revenue">0 ج.م</p>
+          </div>
+          <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-1">
+            <span class="text-xs text-gray-400">عدد الطلبات المنفذة:</span>
+            <p class="text-2xl font-black text-brand-accent" id="report-total-orders">0</p>
+          </div>
+          <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-1">
+            <span class="text-xs text-gray-400">الأكثر مبيعاً:</span>
+            <p class="text-lg font-black text-white" id="report-top-item">---</p>
+          </div>
+        </div>
+
+        <div class="bg-brand-card border border-brand-border p-5 rounded-3xl space-y-3">
+          <h4 class="font-bold text-xs text-gray-300">سجل الطلبات المكتملة لوردية اليوم:</h4>
+          <div class="space-y-2" id="report-orders-table"></div>
+        </div>
       </div>
 
-      <!-- Meals Management (Cloud Sync) -->
-      <div id="admin-sec-meals" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
-        <h3 class="text-base font-black text-white">🍔 إدارة الوجبات السحابية</h3>
+      <!-- Section 4: Couriers -->
+      <div id="admin-sec-couriers" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
+        <h3 class="text-base font-black text-white">🛵 إدارة حسابات الطيارين</h3>
         <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-3 max-w-xl">
-          <h4 class="text-xs font-bold text-brand-primary">➕ إضافة وجبة جديدة (تظهر لجميع الزوار فوراً)</h4>
+          <h4 class="text-xs font-bold text-brand-courier">➕ إضافة كابتن دليفري جديد</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <input type="text" id="new-courier-name" placeholder="اسم الطيار" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+            <input type="text" id="new-courier-phone" placeholder="رقم الهاتف" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+            <input type="text" id="new-courier-pin" placeholder="كود الدخول (PIN)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+          </div>
+          <button onclick="addNewCourier()" class="w-full bg-brand-courier hover:bg-blue-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ حفظ الحساب</button>
+        </div>
+        <div class="space-y-3 max-w-xl" id="admin-couriers-list"></div>
+      </div>
+
+      <!-- Section 5: Meals & Stock Control (Cloud Sync) -->
+      <div id="admin-sec-meals" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
+        <h3 class="text-base font-black text-white">🍔 إدارة الوجبات والتوفر بالمطبخ</h3>
+        <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-3 max-w-2xl">
+          <div class="flex items-center justify-between">
+            <h4 id="meal-form-title" class="text-xs font-bold text-brand-primary">➕ إضافة وجبة جديدة (تُنشر سحابياً للجميع)</h4>
+            <button id="cancel-edit-btn" onclick="resetMealForm()" class="hidden text-[11px] text-gray-400 bg-white/10 px-2.5 py-1 rounded-lg">إلغاء</button>
+          </div>
+          <input type="hidden" id="edit-meal-id" value="" />
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <input type="text" id="meal-name" placeholder="اسم الوجبة" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
             <input type="number" id="meal-price" placeholder="السعر (ج.م)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
             <select id="meal-cat" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none">
-              <option value="burgers">برجر 🍔</option><option value="crispy">فرايد تشيكن 🍗</option><option value="combos">عروض توفير 💥</option>
+              <option value="burgers">برجر 🍔</option>
+              <option value="crispy">فرايد تشيكن 🍗</option>
+              <option value="combos">عروض توفير 💥</option>
             </select>
+            <input type="text" id="meal-img-url-direct" placeholder="أو ضع رابط صورة مباشر (URL)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
           </div>
           <textarea id="meal-desc" placeholder="المكونات..." rows="2" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
-          <input type="text" id="meal-img-url" placeholder="رابط صورة الوجبة (URL)" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-          <button onclick="saveMealToCloud()" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ حفظ ونشر الوجبة سحابياً</button>
+          <div>
+            <label class="block text-xs text-gray-300 font-bold mb-1">📷 أو ارفع صورة من جهازك:</label>
+            <input type="file" id="meal-image-file" accept="image/*" onchange="previewImage(event, 'meal-preview', 'meal-preview-box')" class="block w-full text-xs text-gray-400 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-cardLight file:text-white cursor-pointer" />
+            <div id="meal-preview-box" class="mt-2 hidden">
+              <img id="meal-preview" src="" class="w-20 h-20 object-cover rounded-xl border border-brand-border" />
+            </div>
+          </div>
+          <button onclick="saveMeal()" id="meal-submit-btn" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ نشر الوجبة سحابياً فوراً</button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="dash-meals-grid"></div>
+      </div>
+
+      <!-- Section 6: Banners -->
+      <div id="admin-sec-banners" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
+        <h3 class="text-base font-black text-white">⚡ بنرات السلايدر</h3>
+        <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-3 max-w-2xl">
+          <input type="text" id="deal-title" placeholder="عنوان العرض" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+          <select id="deal-linked-item" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
+          <input type="text" id="deal-img-url-direct" placeholder="أو ضع رابط صورة البنر مباشرة (URL)" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+          <div>
+            <label class="block text-xs text-gray-300 font-bold mb-1">🖼️ أو ارفع صورة البنر:</label>
+            <input type="file" id="deal-image-file" accept="image/*" onchange="previewImage(event, 'deal-preview', 'deal-preview-box')" class="block w-full text-xs text-gray-400 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-cardLight file:text-white cursor-pointer" />
+            <div id="deal-preview-box" class="mt-2 hidden">
+              <img id="deal-preview" src="" class="w-full h-28 object-cover rounded-xl border border-brand-border" />
+            </div>
+          </div>
+          <button onclick="addDealBanner()" class="w-full bg-brand-accent hover:bg-amber-500 text-brand-black text-xs font-black py-2.5 rounded-xl transition">+ نشر البنر في المتجر</button>
+        </div>
+        <div class="space-y-2 max-w-2xl" id="dash-banners-list"></div>
       </div>
     </main>
   </div>
 
-  <!-- Courier Dashboard -->
+  <!-- ================= 4. COURIER VIEW ================= -->
   <div id="view-courier-dashboard" class="hidden min-h-screen bg-brand-black flex flex-col">
     <header class="bg-brand-sidebar border-b border-brand-border p-4 flex items-center justify-between sticky top-0 z-30">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-brand-courier flex items-center justify-center font-black text-white text-lg">🛵</div>
-        <div><h2 class="font-black text-sm text-white" id="courier-welcome-name">كابتن التوصيل</h2><p class="text-[10px] text-emerald-400 font-bold">● متصل سحابياً</p></div>
+        <div>
+          <h2 class="font-black text-sm text-white" id="courier-welcome-name">كابتن التوصيل</h2>
+          <p class="text-[10px] text-emerald-400 font-bold">● نظام التوصيل السحابي</p>
+        </div>
       </div>
       <button onclick="handleLogout()" class="text-xs text-red-400 bg-red-500/10 px-3 py-1.5 rounded-xl border border-red-500/20 font-bold">تسجيل الخروج</button>
     </header>
+
     <main class="flex-1 max-w-2xl w-full mx-auto p-4 space-y-4">
       <div class="bg-brand-card p-4 rounded-2xl border border-brand-border flex items-center justify-between">
-        <div><p class="text-xs text-gray-400">طلبات التوصيل المسندة لك:</p><p class="text-lg font-black text-brand-accent"><span id="courier-orders-count">0</span> قيد التوصيل</p></div>
+        <div>
+          <p class="text-xs text-gray-400">الطلبات المسندة إليك للتوصيل الآن:</p>
+          <p class="text-lg font-black text-brand-accent"><span id="courier-orders-count">0</span> طلبات في الطريق</p>
+        </div>
       </div>
       <div class="space-y-3" id="courier-orders-list"></div>
     </main>
   </div>
 
-  <!-- Meal Customizer Modal -->
+  <!-- ================= MODALS & DRAWERS ================= -->
+
+  <!-- Modal تخصيص الوجبة -->
   <div id="meal-customizer-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between border-b border-brand-border pb-3">
         <h3 class="font-black text-sm text-white" id="customizer-meal-name">تخصيص الوجبة</h3>
         <button onclick="closeMealCustomizer()" class="text-gray-400 hover:text-white text-lg">✕</button>
       </div>
+
+      <!-- اختيار الحجم -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-gray-300">1. اختر الحجم:</label>
         <div class="grid grid-cols-3 gap-2 text-xs" id="size-options">
@@ -255,34 +394,50 @@
           <button type="button" onclick="selectSize('triple', 85)" class="size-btn p-2.5 rounded-xl border border-brand-border bg-brand-black text-gray-300 font-bold text-center">تريبل (+85)</button>
         </div>
       </div>
+
+      <!-- إضافات مدفوعة -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-gray-300">2. إضافات مميزة (اختياري):</label>
         <div class="space-y-1.5 text-xs text-gray-300">
           <label class="flex items-center justify-between bg-brand-black p-2.5 rounded-xl border border-brand-border cursor-pointer">
-            <span class="flex items-center gap-2"><input type="checkbox" id="addon-cheese" value="15" onchange="calculateCustomPrice()" class="accent-brand-primary" /> إكسترا جبنة</span>
+            <span class="flex items-center gap-2"><input type="checkbox" id="addon-cheese" value="15" onchange="calculateCustomPrice()" class="accent-brand-primary" /> إكسترا جبنة شيدر سايحة</span>
             <span class="font-bold text-brand-accent">+15 ج.م</span>
           </label>
           <label class="flex items-center justify-between bg-brand-black p-2.5 rounded-xl border border-brand-border cursor-pointer">
-            <span class="flex items-center gap-2"><input type="checkbox" id="addon-bacon" value="20" onchange="calculateCustomPrice()" class="accent-brand-primary" /> بيف بيكون</span>
+            <span class="flex items-center gap-2"><input type="checkbox" id="addon-bacon" value="20" onchange="calculateCustomPrice()" class="accent-brand-primary" /> بيف بيكون مدخن مقرمش</span>
             <span class="font-bold text-brand-accent">+20 ج.م</span>
+          </label>
+          <label class="flex items-center justify-between bg-brand-black p-2.5 rounded-xl border border-brand-border cursor-pointer">
+            <span class="flex items-center gap-2"><input type="checkbox" id="addon-sauce" value="10" onchange="calculateCustomPrice()" class="accent-brand-primary" /> صوص باربيكيو مدخن إضافي</span>
+            <span class="font-bold text-brand-accent">+10 ج.م</span>
           </label>
         </div>
       </div>
+
+      <!-- تعليمات خاصة -->
       <div class="space-y-1">
-        <label class="block text-xs font-bold text-gray-300">3. ملاحظات:</label>
-        <input type="text" id="customizer-notes" placeholder="مثال: بدون بصل..." class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+        <label class="block text-xs font-bold text-gray-300">3. ملاحظات المطبخ:</label>
+        <input type="text" id="customizer-notes" placeholder="مثال: بدون بصل، صوص حار زيادة..." class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
       </div>
+
+      <!-- عداد الكمية قبل الإضافة -->
       <div class="flex items-center justify-between bg-brand-black p-3 rounded-2xl border border-brand-border">
-        <span class="text-xs font-bold text-gray-300">الكمية:</span>
+        <span class="text-xs font-bold text-gray-300">الكمية المطلوبة:</span>
         <div class="flex items-center gap-3">
-          <button type="button" onclick="changeCustomizerQty(-1)" class="w-8 h-8 rounded-xl bg-brand-card border border-brand-border text-white font-bold">-</button>
+          <button type="button" onclick="changeCustomizerQty(-1)" class="w-8 h-8 rounded-xl bg-brand-card border border-brand-border text-white font-bold hover:bg-brand-primary transition flex items-center justify-center">-</button>
           <span id="customizer-qty" class="font-black text-sm text-brand-accent">1</span>
-          <button type="button" onclick="changeCustomizerQty(1)" class="w-8 h-8 rounded-xl bg-brand-card border border-brand-border text-white font-bold">+</button>
+          <button type="button" onclick="changeCustomizerQty(1)" class="w-8 h-8 rounded-xl bg-brand-card border border-brand-border text-white font-bold hover:bg-brand-primary transition flex items-center justify-center">+</button>
         </div>
       </div>
+
       <div class="pt-2 border-t border-brand-border flex items-center justify-between">
-        <span class="text-base font-black text-brand-accent" id="customizer-total-price">0 ج.م</span>
-        <button onclick="confirmCustomizedMeal()" class="bg-brand-primary hover:bg-red-600 text-white font-black text-xs px-6 py-3 rounded-xl transition shadow-lg">+ أضف للسلة</button>
+        <div>
+          <span class="text-[10px] text-gray-400 block">الإجمالي للصنف:</span>
+          <span class="text-base font-black text-brand-accent" id="customizer-total-price">0 ج.م</span>
+        </div>
+        <button onclick="confirmCustomizedMeal()" class="bg-brand-primary hover:bg-red-600 text-white font-black text-xs px-6 py-3 rounded-xl transition shadow-lg">
+          + أضف إلى السلة
+        </button>
       </div>
     </div>
   </div>
@@ -295,22 +450,39 @@
         <button onclick="toggleCart(false)" class="text-gray-400 hover:text-white p-1 text-lg">✕</button>
       </div>
       <div class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar" id="cart-items-container"></div>
+      
       <div class="p-4 border-t border-brand-border bg-brand-black/60 space-y-3">
-        <select id="delivery-zone" onchange="updateCartState()" class="w-full bg-brand-black border border-brand-border rounded-xl p-2 text-xs text-white focus:outline-none">
-          <option value="15">داخل المدينة - 15 ج.م</option>
-          <option value="25">المحطة والمناطق المجاورة - 25 ج.م</option>
-          <option value="35">القرى والأطراف - 35 ج.م</option>
-        </select>
+        <!-- كود الخصم -->
+        <div class="flex gap-2">
+          <input type="text" id="promo-input" placeholder="كود الخصم (مثل: GRILL20)" class="flex-1 bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs text-white uppercase focus:outline-none" />
+          <button onclick="applyPromoCode()" class="bg-brand-accent text-brand-black text-xs font-black px-3.5 py-1.5 rounded-xl transition">تطبيق</button>
+        </div>
+        <p id="promo-msg" class="hidden text-[11px] font-bold text-emerald-400"></p>
+
+        <!-- اختيار منطقة التوصيل -->
+        <div>
+          <label class="block text-xs font-bold text-gray-300 mb-1">منطقة التوصيل:</label>
+          <select id="delivery-zone" onchange="updateCartState()" class="w-full bg-brand-black border border-brand-border rounded-xl p-2 text-xs text-white focus:outline-none">
+            <option value="15">داخل المدينة (وسط البلد) - 15 ج.م</option>
+            <option value="25">المحطة والمناطق المجاورة - 25 ج.م</option>
+            <option value="35">أطراف المدينة والقرى - 35 ج.م</option>
+          </select>
+        </div>
+
         <div class="space-y-1 text-xs text-gray-300">
           <div class="flex justify-between"><span>الوجبات:</span><span id="subtotal-val" class="font-bold">0 ج.م</span></div>
-          <div class="flex justify-between"><span>التوصيل:</span><span id="delivery-val" class="text-brand-accent font-bold">15 ج.م</span></div>
+          <div class="flex justify-between text-emerald-400" id="discount-row" style="display:none;"><span>الخصم:</span><span id="discount-val" class="font-bold">-0 ج.م</span></div>
+          <div class="flex justify-between"><span>خدمة التوصيل:</span><span id="delivery-val" class="text-brand-accent font-bold">15 ج.م</span></div>
           <div class="flex justify-between text-sm font-black text-white pt-1 border-t border-brand-border"><span>الحساب الكلي:</span><span id="total-val" class="text-brand-accent">0 ج.م</span></div>
         </div>
+
         <div class="space-y-2 pt-1">
-          <input type="text" id="cust-name" placeholder="الاسم" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
+          <input type="text" id="cust-name" placeholder="الاسم ثلاثي" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
           <input type="tel" id="cust-phone" placeholder="رقم الهاتف" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
           <input type="text" id="cust-address" placeholder="العنوان بالتفصيل" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
-          <button type="button" onclick="detectGPSLocation()" id="gps-btn" class="w-full bg-white/5 hover:bg-white/10 border border-brand-border text-gray-300 py-2 rounded-xl text-xs font-bold transition">📍 تحديد موقعي عبر GPS</button>
+          <button type="button" onclick="detectGPSLocation()" id="gps-btn" class="w-full bg-white/5 hover:bg-white/10 border border-brand-border text-gray-300 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+            <span>📍 تحديد موقعي الحالي عبر GPS</span>
+          </button>
           <input type="hidden" id="cust-geo-coords" value="" />
         </div>
         <button onclick="placeInAppOrder()" class="w-full bg-brand-primary hover:bg-red-600 text-white font-black py-3 rounded-xl text-sm transition">🚀 إرسال الطلب للمطبخ</button>
@@ -318,38 +490,69 @@
     </div>
   </div>
 
-  <!-- Customer Orders Modal (مخصصة للعميل فقط) -->
+  <!-- Customer Orders Modal (مخصصة للزبون فقط وبخصوصية كاملة) -->
   <div id="cust-orders-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       <div class="p-4 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
-        <h3 class="font-black text-sm text-white">📦 طلباتي الحالية</h3>
+        <h3 class="font-black text-sm text-white">📦 متابعة طلباتي والمحادثة</h3>
         <button onclick="toggleCustomerOrders(false)" class="text-gray-400 hover:text-white px-2 py-1 text-lg">✕</button>
       </div>
       <div class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar" id="cust-orders-list"></div>
     </div>
   </div>
 
-  <!-- Thermal Print -->
+  <!-- تقييم الزبون للطلب -->
+  <div id="rating-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
+      <span class="text-3xl">⭐</span>
+      <h3 class="font-black text-base text-white">كيف كانت تجربة طلبك؟</h3>
+      <p class="text-xs text-gray-400">تقييمك يساعدنا في تحسين جودة الأكل وسرعة التوصيل</p>
+      <div class="flex justify-center gap-2 text-2xl cursor-pointer" id="star-rating">
+        <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span><span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
+      </div>
+      <input type="text" id="rating-feedback" placeholder="ملاحظاتك (اختياري)..." class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+      <button onclick="submitRating()" class="w-full bg-brand-primary text-white font-black text-xs py-2.5 rounded-xl shadow">إرسال التقييم شكراً لك ❤️</button>
+    </div>
+  </div>
+
+  <!-- Customer Chat Modal -->
+  <div id="cust-chat-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-lg h-[500px] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-3 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
+        <h4 class="font-bold text-xs text-white" id="cust-chat-title">💬 محادثة مباشرة</h4>
+        <button onclick="closeCustomerChat()" class="text-gray-400 hover:text-white px-2 py-1">✕</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-2.5 bg-brand-black/50" id="cust-chat-messages"></div>
+      <div class="p-3 border-t border-brand-border bg-brand-card flex items-center gap-2">
+        <input type="text" id="cust-chat-input" onkeypress="if(event.key==='Enter') sendCustMessage()" placeholder="اكتب رسالتك للمطعم..." class="flex-1 bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
+        <button onclick="sendCustMessage()" class="bg-brand-primary text-white text-xs font-bold px-4 py-2 rounded-xl">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thermal Kitchen Receipt Print (بون المطبخ 80mm) -->
   <div id="thermal-receipt" class="hidden">
     <div class="receipt-body text-center font-mono">
       <h2 class="font-bold text-lg">*** GRILL & CRISPY ***</h2>
-      <p class="text-xs">بون المطبخ</p>
+      <p class="text-xs">بون المطبخ والتجهيز</p>
       <hr class="my-2 border-dashed border-black" />
       <div class="text-right text-xs" id="receipt-details"></div>
       <hr class="my-2 border-dashed border-black" />
       <div class="text-right text-xs space-y-1" id="receipt-items"></div>
       <hr class="my-2 border-dashed border-black" />
       <div class="text-right text-sm font-bold" id="receipt-total"></div>
+      <p class="mt-4 text-[10px]">شكراً لكم - بالهناء والشفاء</p>
     </div>
   </div>
 
-  <!-- JavaScript Engine -->
+  <!-- ================= JAVASCRIPT ENGINE ================= -->
   <script>
+    // 1. Supabase Initialization
     const SUPABASE_URL = "https://iugxobtoeowdfgfxmdmh.supabase.co";
     const SUPABASE_KEY = "sb_publishable_LZHe7rl-SDSvWUF2gedu4w_lg59gDI_";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // معرف فريد لجهاز العميل لكي لا يرى طلبات غيره
+    // معرف فريد لجهاز العميل لكي لا يرى أحد طلبات غيره
     let clientDeviceId = localStorage.getItem('client_device_token');
     if (!clientDeviceId) {
       clientDeviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
@@ -362,36 +565,50 @@
       { id: 103, category: 'combos', name: 'عرض بوكس الصحاب (2+2)', price: 299, inStock: true, desc: '2 برجر دوبل، 2 زنجر كرسبي، لتر بيبسي، بطاطس لارج.', img: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&auto=format&fit=crop&q=80' }
     ];
 
-    const couriers = [
+    const defaultDeals = [
+      { id: 1, title: "خصم 25% على بوكس الصحاب العائلي", linkedItemId: 103, bannerImg: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80" }
+    ];
+
+    const defaultCouriers = [
       { id: 'c1', name: 'كابتن محمود حسن', phone: '01011112222', pin: '1122' },
       { id: 'c2', name: 'كابتن طارق علي', phone: '01033334444', pin: '3344' }
     ];
 
     let products = [...defaultProducts];
+    let deals = JSON.parse(localStorage.getItem('cloud_deals')) || defaultDeals;
+    let couriers = JSON.parse(localStorage.getItem('cloud_couriers')) || defaultCouriers;
     let orders = [];
+
     let cart = [];
+    let appliedDiscountPercent = 0;
     let currentCategory = 'all';
+    let currentSlide = 0;
 
     let authRole = sessionStorage.getItem('auth_role') || null;
     let loggedCourierId = sessionStorage.getItem('courier_id') || null;
+
     let selectedAdminOrderId = null;
+    let activeCustChatOrderId = null;
     let loginSelectedRole = 'admin';
 
     let activeCustomizingMeal = null;
     let currentSelectedSizeExtra = 0;
     let currentSelectedSizeName = 'سينجل';
     let customizerCurrentQty = 1;
+
+    let tempMealImg = '';
+    let tempDealImg = '';
     let alarmAudioInterval = null;
 
-    // 1. جلب المنتجات والطلبات سحابياً
+    // جلب البيانات السحابية
     async function loadCloudData() {
-      // جلب المنتجات السحابية
+      // 1. جلب المنتجات السحابية
       try {
         const { data: pData } = await supabaseClient.from('products').select('*');
         if (pData && pData.length > 0) {
           products = pData.map(r => r.data);
         } else {
-          // رفع المنتجات الافتراضية لأول مرة
+          // نشر المنتجات الافتراضية
           for (const p of defaultProducts) {
             await supabaseClient.from('products').upsert({ id: p.id, data: p });
           }
@@ -402,8 +619,10 @@
       }
       renderProducts(products);
       renderDashboardMeals();
+      renderDashboardBanners();
+      renderSlider();
 
-      // جلب الطلبات السحابية
+      // 2. جلب الطلبات السحابية
       try {
         const { data: oData } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (oData) {
@@ -411,29 +630,36 @@
         }
       } catch (e) {}
 
-      refreshUI();
+      refreshAllViews();
     }
 
-    // الاستماع اللحظي للطلبات والمنتجات
+    // الاستماع السحابي الحي (Realtime Listener)
     supabaseClient
-      .channel('schema-db-changes')
+      .channel('schema-changes-all')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadCloudData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => loadCloudData())
       .subscribe();
 
-    function refreshUI() {
+    function refreshAllViews() {
       renderCustomerOrders();
       if (authRole === 'admin') {
         renderDashboardOrders();
         renderSettlementRegister();
         renderDailyReport();
+        renderAdminCouriersList();
         checkNewOrdersAlarm();
         if (selectedAdminOrderId) selectAdminOrder(selectedAdminOrderId);
       }
       if (authRole === 'courier') renderCourierDashboard();
+      if (activeCustChatOrderId) renderCustChatMessages();
     }
 
-    // 2. Navigation & Login
+    function syncLocalMisc() {
+      localStorage.setItem('cloud_deals', JSON.stringify(deals));
+      localStorage.setItem('cloud_couriers', JSON.stringify(couriers));
+    }
+
+    // 2. Navigation & Login Gateway
     function navigateView(viewName) {
       document.getElementById('view-storefront').classList.toggle('hidden', viewName !== 'storefront');
       document.getElementById('view-login-gate').classList.toggle('hidden', viewName !== 'login-gate');
@@ -445,6 +671,9 @@
         renderSettlementRegister();
         renderDailyReport();
         renderDashboardMeals();
+        renderDashboardBanners();
+        renderAdminCouriersList();
+        checkNewOrdersAlarm();
       } else if (viewName === 'courier-dashboard') {
         renderCourierDashboard();
       }
@@ -459,6 +688,7 @@
 
       document.getElementById('login-username').value = '';
       document.getElementById('login-password').value = '';
+      document.getElementById('login-error-msg').classList.add('hidden');
 
       if (role === 'admin') {
         adminBtn.className = 'flex-1 py-2 rounded-lg bg-brand-primary text-white transition';
@@ -531,21 +761,27 @@
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.frequency.value = 850; osc.type = 'sine';
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 850;
+            osc.type = 'sine';
             gain.gain.setValueAtTime(0.15, ctx.currentTime);
-            osc.start(); osc.stop(ctx.currentTime + 0.35);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.35);
           } catch (e) {}
         }, 2200);
       }
     }
 
     function stopOrderAlarm() {
-      if (alarmAudioInterval) { clearInterval(alarmAudioInterval); alarmAudioInterval = null; }
+      if (alarmAudioInterval) {
+        clearInterval(alarmAudioInterval);
+        alarmAudioInterval = null;
+      }
       document.getElementById('alarm-banner').classList.add('hidden');
     }
 
-    // 4. Products & Customizer
+    // 4. Products & Customizer Modal
     function renderProducts(items) {
       const grid = document.getElementById('items-grid');
       grid.innerHTML = items.map(item => `
@@ -565,7 +801,9 @@
                 + تخصيص واختيار الحجم 👈
               </button>
             ` : `
-              <button disabled class="w-full bg-white/5 text-gray-500 py-2 rounded-xl text-xs font-bold cursor-not-allowed">نفذت الكمية بالمطبخ</button>
+              <button disabled class="w-full bg-white/5 text-gray-500 py-2 rounded-xl text-xs font-bold cursor-not-allowed">
+                نفذت الكمية بالمطبخ
+              </button>
             `}
           </div>
         </div>
@@ -575,12 +813,15 @@
     function openMealCustomizer(id) {
       activeCustomizingMeal = products.find(p => p.id === id);
       if (!activeCustomizingMeal) return;
+
       customizerCurrentQty = 1;
       document.getElementById('customizer-qty').innerText = "1";
       document.getElementById('customizer-meal-name').innerText = `تخصيص: ${activeCustomizingMeal.name}`;
       document.getElementById('customizer-notes').value = '';
       document.getElementById('addon-cheese').checked = false;
       document.getElementById('addon-bacon').checked = false;
+      document.getElementById('addon-sauce').checked = false;
+
       selectSize('single', 0);
       document.getElementById('meal-customizer-modal').classList.remove('hidden');
     }
@@ -593,9 +834,14 @@
     function selectSize(sizeName, extraPrice) {
       currentSelectedSizeName = sizeName === 'single' ? 'سينجل' : (sizeName === 'double' ? 'دبل' : 'تريبل');
       currentSelectedSizeExtra = extraPrice;
+
       const btns = document.querySelectorAll('.size-btn');
-      btns.forEach(b => b.className = 'size-btn p-2.5 rounded-xl border border-brand-border bg-brand-black text-gray-300 font-bold text-center');
-      if (event && event.target) event.target.className = 'size-btn p-2.5 rounded-xl border border-brand-primary bg-brand-primary text-white font-bold text-center';
+      btns.forEach(b => {
+        b.className = 'size-btn p-2.5 rounded-xl border border-brand-border bg-brand-black text-gray-300 font-bold text-center';
+      });
+      if (event && event.target) {
+        event.target.className = 'size-btn p-2.5 rounded-xl border border-brand-primary bg-brand-primary text-white font-bold text-center';
+      }
       calculateCustomPrice();
     }
 
@@ -610,25 +856,34 @@
       let unitPrice = activeCustomizingMeal.price + currentSelectedSizeExtra;
       if (document.getElementById('addon-cheese').checked) unitPrice += 15;
       if (document.getElementById('addon-bacon').checked) unitPrice += 20;
-      document.getElementById('customizer-total-price').innerText = `${unitPrice * customizerCurrentQty} ج.م`;
+      if (document.getElementById('addon-sauce').checked) unitPrice += 10;
+      
+      let totalPrice = unitPrice * customizerCurrentQty;
+      document.getElementById('customizer-total-price').innerText = `${totalPrice} ج.م`;
     }
 
     function confirmCustomizedMeal() {
       if (!activeCustomizingMeal) return;
+
       const addons = [];
       let unitPrice = activeCustomizingMeal.price + currentSelectedSizeExtra;
       if (document.getElementById('addon-cheese').checked) { addons.push('إكسترا جبنة'); unitPrice += 15; }
       if (document.getElementById('addon-bacon').checked) { addons.push('بيف بيكون'); unitPrice += 20; }
-      const notes = document.getElementById('customizer-notes').value.trim();
-      const customKey = `${activeCustomizingMeal.id}_${currentSelectedSizeName}_${addons.sort().join('|')}_${notes}`;
+      if (document.getElementById('addon-sauce').checked) { addons.push('إكسترا باربيكيو'); unitPrice += 10; }
 
-      const existingItem = cart.find(i => i.customKey === customKey);
+      const notes = document.getElementById('customizer-notes').value.trim();
+      const sortedAddons = [...addons].sort();
+      const customizationKey = `${activeCustomizingMeal.id}_${currentSelectedSizeName}_${sortedAddons.join('|')}_${notes}`;
+
+      const existingItem = cart.find(item => item.customKey === customizationKey);
+
       if (existingItem) {
         existingItem.qty += customizerCurrentQty;
       } else {
         cart.push({
           id: Date.now() + Math.random(),
-          customKey: customKey,
+          customKey: customizationKey,
+          productId: activeCustomizingMeal.id,
           name: activeCustomizingMeal.name,
           size: currentSelectedSizeName,
           addons: addons,
@@ -637,16 +892,24 @@
           qty: customizerCurrentQty
         });
       }
+
+      const addedName = activeCustomizingMeal.name;
+      const addedQty = customizerCurrentQty;
+
       closeMealCustomizer();
       updateCartState();
-      showToast(`✅ تمت إضافة الوجبة للسلة`);
+      showToast(`✅ تمت إضافة (${addedQty}x ${addedName}) للسلة`);
     }
 
     function showToast(msg) {
       const toast = document.getElementById('toast-notify');
-      document.getElementById('toast-text').innerText = msg;
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+
+      text.innerText = msg;
       toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
       toast.classList.add('opacity-100', 'translate-y-0');
+
       setTimeout(() => {
         toast.classList.remove('opacity-100', 'translate-y-0');
         toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
@@ -656,17 +919,26 @@
     function changeCartItemQty(index, delta) {
       if (!cart[index]) return;
       cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
       updateCartState();
     }
 
-    // 5. Cart & Orders
+    function removeCartItem(index) {
+      cart.splice(index, 1);
+      updateCartState();
+    }
+
+    // 5. Cart, Promo & Order Placement
     function updateCartState() {
       const container = document.getElementById('cart-items-container');
       const deliveryFee = parseInt(document.getElementById('delivery-zone').value) || 15;
-      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      
+      const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
       let subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
-      let total = subtotal + (cart.length > 0 ? deliveryFee : 0);
+      let discountAmount = Math.round((subtotal * appliedDiscountPercent) / 100);
+      let total = (subtotal - discountAmount) + (cart.length > 0 ? deliveryFee : 0);
 
       if (cart.length === 0) {
         container.innerHTML = `<div class="text-center py-12 text-gray-400 text-xs">السلة فارغة.</div>`;
@@ -676,89 +948,186 @@
           <div class="bg-brand-black p-3.5 rounded-2xl border border-brand-border flex items-center justify-between gap-3">
             <div class="flex-1">
               <h4 class="font-bold text-xs text-white">${item.name} (${item.size})</h4>
-              ${item.addons.length ? `<p class="text-[10px] text-brand-accent">+ ${item.addons.join('، ')}</p>` : ''}
-              <span class="text-xs text-brand-accent font-black">${item.unitPrice * item.qty} ج.م</span>
+              ${item.addons.length > 0 ? `<p class="text-[10px] text-brand-accent">+ ${item.addons.join('، ')}</p>` : ''}
+              ${item.notes ? `<p class="text-[10px] text-gray-400 italic">ملاحظة: ${item.notes}</p>` : ''}
+              <span class="text-xs text-brand-accent font-black">${item.unitPrice * item.qty} ج.م <span class="text-[10px] text-gray-500 font-normal">(${item.unitPrice} ج.م للقطعة)</span></span>
             </div>
-            <div class="flex items-center gap-2 bg-brand-card px-2 py-1 rounded-xl border border-brand-border">
-              <button onclick="changeCartItemQty(${idx}, -1)" class="text-sm font-bold text-gray-400 px-1">-</button>
+
+            <div class="flex items-center gap-2 bg-brand-card px-2.5 py-1 rounded-xl border border-brand-border">
+              <button onclick="changeCartItemQty(${idx}, -1)" class="text-sm font-bold text-gray-400 hover:text-white px-1 transition">-</button>
               <span class="text-xs font-black text-white px-1">${item.qty}</span>
-              <button onclick="changeCartItemQty(${idx}, 1)" class="text-sm font-bold text-brand-primary px-1">+</button>
+              <button onclick="changeCartItemQty(${idx}, 1)" class="text-sm font-bold text-brand-primary px-1 transition">+</button>
             </div>
+
+            <button onclick="removeCartItem(${idx})" class="text-xs text-red-400 hover:text-red-500 p-1">🗑️</button>
           </div>
         `).join('');
         document.getElementById('sticky-bar').classList.remove('hidden');
       }
 
-      document.getElementById('nav-cart-badge').innerText = totalCount;
-      document.getElementById('bar-items-count').innerText = `${totalCount} أصناف`;
+      document.getElementById('nav-cart-badge').innerText = totalItemsCount;
+      document.getElementById('bar-items-count').innerText = `${totalItemsCount} أصناف`;
       document.getElementById('bar-total-price').innerText = `${total} ج.م`;
       document.getElementById('subtotal-val').innerText = `${subtotal} ج.م`;
       document.getElementById('delivery-val').innerText = `${cart.length > 0 ? deliveryFee : 0} ج.م`;
       document.getElementById('total-val').innerText = `${total} ج.م`;
+
+      const discountRow = document.getElementById('discount-row');
+      if (discountAmount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('discount-val').innerText = `-${discountAmount} ج.م (${appliedDiscountPercent}%)`;
+      } else {
+        discountRow.style.display = 'none';
+      }
     }
 
     function toggleCart(show) { document.getElementById('cart-drawer').classList.toggle('hidden', !show); }
 
+    function applyPromoCode() {
+      const code = document.getElementById('promo-input').value.trim().toUpperCase();
+      const msg = document.getElementById('promo-msg');
+
+      if (code === 'GRILL20') {
+        appliedDiscountPercent = 20;
+        msg.innerText = '✅ تم تطبيق خصم 20% بنجاح على الفاتورة!';
+        msg.className = 'text-[11px] font-bold text-emerald-400';
+        msg.classList.remove('hidden');
+      } else if (code === 'CRISPY10') {
+        appliedDiscountPercent = 10;
+        msg.innerText = '✅ تم تطبيق خصم 10% بنجاح!';
+        msg.className = 'text-[11px] font-bold text-emerald-400';
+        msg.classList.remove('hidden');
+      } else {
+        appliedDiscountPercent = 0;
+        msg.innerText = '❌ كود غير صحيح أو منتهي الصلاحية';
+        msg.className = 'text-[11px] font-bold text-red-400';
+        msg.classList.remove('hidden');
+      }
+      updateCartState();
+    }
+
     function detectGPSLocation() {
       const btn = document.getElementById('gps-btn');
       if (!navigator.geolocation) return alert('متصفحك لا يدعم GPS');
-      btn.innerText = '🛰️ جاري التقاط الموقع...';
+      btn.innerText = '🛰️ جاري التقاط الموقع بالأقمار الصناعية...';
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          document.getElementById('cust-geo-coords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
-          btn.innerHTML = `✅ تم تحديد موقعك`;
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          document.getElementById('cust-geo-coords').value = `${lat},${lng}`;
+          btn.innerHTML = `✅ تم التقاط موقعك بدقة`;
           btn.classList.add('border-emerald-500', 'text-emerald-400');
         },
-        () => { alert('يرجى السماح بالوصول للموقع.'); btn.innerText = '📍 تحديد موقعي عبر GPS'; },
+        () => { btn.innerText = '📍 تحديد موقعي الحالي عبر GPS'; alert('يرجى تفعيل صلاحية الموقع.'); },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
 
     async function placeInAppOrder() {
       if (cart.length === 0) return alert('السلة فارغة!');
+
       const name = document.getElementById('cust-name').value.trim();
       const phone = document.getElementById('cust-phone').value.trim();
       const address = document.getElementById('cust-address').value.trim();
       const geoCoords = document.getElementById('cust-geo-coords').value.trim();
       const deliveryFee = parseInt(document.getElementById('delivery-zone').value) || 15;
 
-      if (!name || !phone || !address) return alert('يرجى ملء الاسم ورقم الهاتف والعنوان');
+      if (!name || !phone || !address) return alert('يرجى ملء الاسم ورقم الهاتف والعنوان بالتفصيل');
 
       let subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+      let discountAmount = Math.round((subtotal * appliedDiscountPercent) / 100);
+      let finalTotal = (subtotal - discountAmount) + deliveryFee;
+
       const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-      
       const newOrder = {
         id: orderId,
-        clientDeviceId: clientDeviceId, // ربط الطلب بجهاز العميل فقط
+        clientDeviceId: clientDeviceId, // ربط الطلب بجهاز العميل لضمان الخصوصية
         customerName: name,
         customerPhone: phone,
         address: address,
         geoCoords: geoCoords || null,
-        items: [...cart],
+        items: cart.map(item => ({
+          name: item.name,
+          size: item.size,
+          addons: item.addons,
+          notes: item.notes,
+          qty: item.qty,
+          unitPrice: item.unitPrice,
+          price: item.unitPrice * item.qty
+        })),
         subtotal: subtotal,
         deliveryFee: deliveryFee,
-        total: subtotal + deliveryFee,
+        discountAmount: discountAmount,
+        total: finalTotal,
         status: 'pending',
         assignedCourierId: null,
         cashSettled: false,
+        rating: null,
         createdAt: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
-        messages: [{ sender: 'system', text: `تم استلام طلبك برقم ${orderId} وهو قيد المراجعة في المطبخ.`, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }]
+        messages: [
+          { sender: 'system', text: `تم استلام طلبك برقم ${orderId} وهو قيد المراجعة في المطبخ.`, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }
+        ]
       };
 
-      // حفظ سحابي
+      // الحفظ سحابياً في Supabase
       await supabaseClient.from('orders').upsert({ id: newOrder.id, data: newOrder });
 
       cart = [];
+      appliedDiscountPercent = 0;
       updateCartState();
       toggleCart(false);
+
       document.getElementById('cust-name').value = '';
       document.getElementById('cust-phone').value = '';
       document.getElementById('cust-address').value = '';
-      alert(`🎉 تم إرسال طلبك رقم: ${orderId}`);
+      document.getElementById('cust-geo-coords').value = '';
+      document.getElementById('gps-btn').innerText = '📍 تحديد موقعي الحالي عبر GPS';
+
+      alert(`🎉 تم إرسال طلبك سحابياً رقم: ${orderId}`);
       toggleCustomerOrders(true);
     }
 
-    // 6. فلترة طلبات العميل حسب جهازه فقط
+    // 6. Thermal Print
+    function printKitchenReceipt(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      document.getElementById('receipt-details').innerHTML = `
+        <p><b>رقم الطلب:</b> ${order.id}</p>
+        <p><b>التاريخ والوقت:</b> ${order.createdAt}</p>
+        <p><b>العميل:</b> ${order.customerName}</p>
+        <p><b>الهاتف:</b> ${order.customerPhone}</p>
+        <p><b>العنوان:</b> ${order.address}</p>
+      `;
+
+      document.getElementById('receipt-items').innerHTML = order.items.map(item => `
+        <div class="flex justify-between">
+          <span>${item.qty}x ${item.name} (${item.size}) ${item.addons.length ? `[+${item.addons.join(',')}]` : ''}</span>
+          <span>${item.price} ج.م</span>
+        </div>
+        ${item.notes ? `<p style="font-size:9px; color:#555;">--> ${item.notes}</p>` : ''}
+      `).join('');
+
+      document.getElementById('receipt-total').innerHTML = `
+        <div class="flex justify-between"><span>الوجبات:</span><span>${order.subtotal} ج.م</span></div>
+        ${order.discountAmount ? `<div class="flex justify-between"><span>الخصم:</span><span>-${order.discountAmount} ج.م</span></div>` : ''}
+        <div class="flex justify-between"><span>التوصيل:</span><span>${order.deliveryFee} ج.م</span></div>
+        <div class="flex justify-between text-base border-t border-black mt-1 pt-1"><span>الإجمالي:</span><span>${order.total} ج.م</span></div>
+      `;
+
+      window.print();
+    }
+
+    // 7. Customer Orders, Chat & Rating
+    function getMessageStats(messages = []) {
+      let custCount = 0, adminCount = 0;
+      messages.forEach(m => {
+        if (m.sender === 'customer') custCount++;
+        if (m.sender === 'admin') adminCount++;
+      });
+      return { total: messages.length, incoming: custCount, outgoing: adminCount };
+    }
+
     function toggleCustomerOrders(show) {
       document.getElementById('cust-orders-modal').classList.toggle('hidden', !show);
       if (show) renderCustomerOrders();
@@ -768,7 +1137,7 @@
       const container = document.getElementById('cust-orders-list');
       const badge = document.getElementById('cust-orders-badge');
 
-      // فلترة: العميل يرى فقط الطلبات المرسلة من جهازه
+      // فلترة: الزبون يرى فقط طلباته هو
       const myOrders = orders.filter(o => o.clientDeviceId === clientDeviceId);
 
       if (myOrders.length === 0) {
@@ -781,15 +1150,16 @@
       badge.innerText = myOrders.length;
 
       const statusLabels = {
-        pending: { text: '⏳ قيد المراجعة بالمطبخ', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-        preparing: { text: '👨‍🍳 في التجهيز', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+        pending: { text: '⏳ قيد المراجعة والتجهيز', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+        preparing: { text: '👨‍🍳 في المطبخ الآن', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
         onway: { text: '🛵 مع الدليفري بالطريق', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
-        delivered: { text: '✅ تم التسليم', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+        delivered: { text: '✅ تم التسليم بالهناء والشفاء', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
         settled: { text: '✅ تم التسليم وإغلاق الطلب', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' }
       };
 
       container.innerHTML = myOrders.map(order => {
         const s = statusLabels[order.status] || statusLabels.pending;
+        const stats = getMessageStats(order.messages);
         const courier = couriers.find(c => c.id === order.assignedCourierId);
 
         return `
@@ -805,23 +1175,121 @@
               </div>
             ` : ''}
             <div class="text-xs text-gray-300 space-y-1">
-              ${order.items.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name} (${i.size})</span><span>${i.unitPrice * i.qty} ج.م</span></div>`).join('')}
+              ${order.items.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name} (${i.size})</span><span>${i.price} ج.م</span></div>`).join('')}
               <div class="flex justify-between font-black text-white pt-1 border-t border-brand-border/60">
-                <span>الإجمالي:</span><span class="text-brand-accent">${order.total} ج.م</span>
+                <span>الإجمالي:</span>
+                <span class="text-brand-accent">${order.total} ج.م</span>
               </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="openCustomerChat('${order.id}')" class="flex-1 bg-brand-card hover:bg-brand-cardLight border border-brand-border text-white text-xs font-bold py-2 rounded-xl flex items-center justify-between px-3 transition">
+                <span>💬 الشات المباشر</span>
+                <span class="text-[10px] bg-brand-black px-1.5 py-0.5 rounded text-brand-accent">${stats.total} رسائل</span>
+              </button>
+              ${order.status === 'delivered' || order.status === 'settled' ? `
+                <button onclick="openRatingModal('${order.id}')" class="bg-brand-accent/20 hover:bg-brand-accent text-brand-accent hover:text-black border border-brand-accent/30 text-xs font-bold px-3 py-2 rounded-xl transition">
+                  ${order.rating ? `⭐ تم تقييمك (${order.rating}/5)` : '⭐ قيّم الوجبة'}
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // 7. Admin Orders & Cloud Meals
+    function openRatingModal(orderId) {
+      activeCustChatOrderId = orderId;
+      document.getElementById('rating-modal').classList.remove('hidden');
+    }
+
+    let selectedRatingValue = 5;
+    function setRating(val) {
+      selectedRatingValue = val;
+      const stars = document.querySelectorAll('#star-rating span');
+      stars.forEach((s, idx) => {
+        s.style.color = idx < val ? '#ffb703' : '#4b5563';
+      });
+    }
+
+    async function submitRating() {
+      const order = orders.find(o => o.id === activeCustChatOrderId);
+      if (order) {
+        order.rating = selectedRatingValue;
+        order.ratingFeedback = document.getElementById('rating-feedback').value.trim();
+        await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+        document.getElementById('rating-modal').classList.add('hidden');
+        renderCustomerOrders();
+        alert('شكراً لتقييمك الرائع! ❤️');
+      }
+    }
+
+    function openCustomerChat(orderId) {
+      activeCustChatOrderId = orderId;
+      document.getElementById('cust-chat-modal').classList.remove('hidden');
+      renderCustChatMessages();
+    }
+
+    function closeCustomerChat() {
+      document.getElementById('cust-chat-modal').classList.add('hidden');
+      activeCustChatOrderId = null;
+    }
+
+    function renderCustChatMessages() {
+      const order = orders.find(o => o.id === activeCustChatOrderId);
+      if (!order) return;
+
+      const stats = getMessageStats(order.messages);
+      document.getElementById('cust-chat-title').innerHTML = `
+        💬 محادثة طلب ${order.id} 
+        <span class="text-[10px] text-gray-400 font-normal mr-2">[وارد: ${stats.outgoing} | صادر: ${stats.incoming}]</span>
+      `;
+
+      const container = document.getElementById('cust-chat-messages');
+      container.innerHTML = (order.messages || []).map(m => {
+        if (m.sender === 'system') return `<div class="text-center my-2"><span class="bg-white/5 border border-white/10 text-gray-400 text-[10px] px-3 py-1 rounded-full">${m.text}</span></div>`;
+        const isMe = m.sender === 'customer';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <div class="max-w-[80%] rounded-2xl px-3 py-2 text-xs ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-brand-card border border-brand-border text-gray-200 rounded-bl-none'}">
+              <p class="text-[10px] opacity-70 mb-0.5">${isMe ? 'أنت' : 'إدارة المطعم'}</p>
+              <p>${m.text}</p>
+            </div>
+            <span class="text-[9px] text-gray-500 mt-0.5 px-1">${m.time}</span>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendCustMessage() {
+      const input = document.getElementById('cust-chat-input');
+      const text = input.value.trim();
+      if (!text || !activeCustChatOrderId) return;
+
+      const order = orders.find(o => o.id === activeCustChatOrderId);
+      if (order) {
+        if (!order.messages) order.messages = [];
+        order.messages.push({
+          sender: 'customer',
+          text: text,
+          time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+        });
+        await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+        renderCustChatMessages();
+        input.value = '';
+      }
+    }
+
+    // 8. Admin Dashboard & Split Live Chat
     function switchAdminSection(sec) {
-      ['orders', 'settlement', 'reports', 'meals'].forEach(s => {
+      ['orders', 'settlement', 'reports', 'couriers', 'meals', 'banners'].forEach(s => {
         document.getElementById(`admin-sec-${s}`).classList.toggle('hidden', s !== sec);
         const navBtn = document.getElementById(`nav-sec-${s}`);
-        if (s === sec) navBtn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-primary text-white transition font-bold';
-        else navBtn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition font-bold';
+        if (s === sec) {
+          navBtn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-primary text-white transition font-bold';
+        } else {
+          navBtn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition font-bold';
+        }
       });
     }
 
@@ -835,39 +1303,57 @@
         return;
       }
 
-      list.innerHTML = activeOrders.map(order => `
-        <div onclick="selectAdminOrder('${order.id}')" class="p-3 rounded-2xl border cursor-pointer transition ${selectedAdminOrderId === order.id ? 'bg-brand-cardLight border-brand-primary' : 'bg-brand-black border-brand-border hover:border-brand-primary/40'}">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-black text-xs text-brand-accent">طلب ${order.id}</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-brand-card border border-brand-border text-gray-300">${order.status}</span>
+      list.innerHTML = activeOrders.map(order => {
+        const stats = getMessageStats(order.messages);
+        const courier = couriers.find(c => c.id === order.assignedCourierId);
+
+        return `
+          <div onclick="selectAdminOrder('${order.id}')" class="p-3 rounded-2xl border cursor-pointer transition ${selectedAdminOrderId === order.id ? 'bg-brand-cardLight border-brand-primary' : 'bg-brand-black border-brand-border hover:border-brand-primary/40'}">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-black text-xs text-brand-accent">طلب ${order.id}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-brand-card border border-brand-border text-gray-300">${order.status}</span>
+            </div>
+            <p class="text-xs text-white font-bold">${order.customerName}</p>
+            <div class="flex items-center justify-between text-[11px] text-gray-400 mt-1">
+              <span>${order.total} ج.م ${courier ? `• 🛵 ${courier.name}` : ''}</span>
+              <span class="text-brand-accent font-mono text-[10px]">رسائل: ${stats.total}</span>
+            </div>
           </div>
-          <p class="text-xs text-white font-bold">${order.customerName}</p>
-          <span class="text-[11px] text-gray-400">${order.total} ج.م</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function selectAdminOrder(orderId) {
       selectedAdminOrderId = orderId;
       renderDashboardOrders();
+
       const order = orders.find(o => o.id === orderId);
       const panel = document.getElementById('dash-order-detail-panel');
       if (!order) return;
 
+      const stats = getMessageStats(order.messages);
       const mapUrl = order.geoCoords ? `https://maps.google.com/?q=${order.geoCoords}` : `https://maps.google.com/?q=${encodeURIComponent(order.address)}`;
 
       panel.innerHTML = `
         <div class="p-4 border-b border-brand-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-brand-card">
           <div>
-            <h3 class="font-black text-sm text-white">تفاصيل: ${order.id}</h3>
+            <div class="flex items-center gap-2">
+              <h3 class="font-black text-sm text-white">تفاصيل الطلب: ${order.id}</h3>
+              <span class="text-[11px] text-gray-400">(${order.createdAt})</span>
+            </div>
             <p class="text-xs text-gray-300 mt-0.5">👤 ${order.customerName} | 📞 <a href="tel:${order.customerPhone}" class="text-emerald-400 underline font-bold">${order.customerPhone}</a> | 📍 ${order.address}</p>
           </div>
+
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="printKitchenReceipt('${order.id}')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition">🖨️ طباعة البون</button>
+            <button onclick="printKitchenReceipt('${order.id}')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+              🖨️ طباعة بون المطبخ
+            </button>
+
             <select onchange="assignCourierToOrder('${order.id}', this.value)" class="bg-brand-black border border-brand-border rounded-xl px-2.5 py-1.5 text-xs text-brand-courier font-bold focus:outline-none">
-              <option value="">-- إسناد لطيار --</option>
+              <option value="">-- إسناد لطيار دليفري --</option>
               ${couriers.map(c => `<option value="${c.id}" ${order.assignedCourierId === c.id ? 'selected' : ''}>🛵 ${c.name}</option>`).join('')}
             </select>
+
             <select onchange="updateOrderStatus('${order.id}', this.value)" class="bg-brand-black border border-brand-border rounded-xl px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none">
               <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ قيد المراجعة</option>
               <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>👨‍🍳 في المطبخ</option>
@@ -876,24 +1362,110 @@
             </select>
           </div>
         </div>
-        <div class="p-4 space-y-3 overflow-y-auto no-scrollbar">
-          <div class="flex justify-between items-center"><span class="text-xs font-bold text-gray-400">الوجبات:</span><a href="${mapUrl}" target="_blank" class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-bold">🗺️ الخريطة</a></div>
-          <div class="space-y-2">
-            ${order.items.map(i => `<div class="bg-brand-card p-2.5 rounded-xl border border-brand-border flex justify-between text-xs"><span class="font-bold text-white">${i.qty}x ${i.name} (${i.size})</span><span class="text-brand-accent">${i.unitPrice * i.qty} ج.م</span></div>`).join('')}
+
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <div class="w-full md:w-1/2 p-4 border-b md:border-b-0 md:border-l border-brand-border overflow-y-auto space-y-3 no-scrollbar">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-gray-400">الوجبات والتخصيص:</h4>
+              <a href="${mapUrl}" target="_blank" class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-bold">
+                🗺️ فحص العنوان بالخريطة
+              </a>
+            </div>
+            <div class="space-y-2">
+              ${order.items.map(i => `
+                <div class="bg-brand-card p-2.5 rounded-xl border border-brand-border space-y-1 text-xs">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-white">${i.qty}x ${i.name} (${i.size})</span>
+                    <span class="text-brand-accent font-semibold">${i.price} ج.م</span>
+                  </div>
+                  ${i.addons && i.addons.length ? `<p class="text-[10px] text-brand-accent">+ ${i.addons.join('، ')}</p>` : ''}
+                  ${i.notes ? `<p class="text-[10px] text-gray-400 italic">ملاحظة: ${i.notes}</p>` : ''}
+                </div>
+              `).join('')}
+            </div>
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-1 text-xs text-gray-300">
+              <div class="flex justify-between"><span>الوجبات:</span><span>${order.subtotal} ج.م</span></div>
+              ${order.discountAmount ? `<div class="flex justify-between text-emerald-400"><span>الخصم:</span><span>-${order.discountAmount} ج.م</span></div>` : ''}
+              <div class="flex justify-between"><span>خدمة التوصيل:</span><span>${order.deliveryFee} ج.م</span></div>
+              <div class="flex justify-between font-black text-white pt-1 border-t border-brand-border"><span>الحساب الكلي:</span><span class="text-brand-accent text-sm">${order.total} ج.م</span></div>
+            </div>
           </div>
-          <div class="bg-brand-card p-3 rounded-xl border border-brand-border text-xs text-gray-300">
-            <div class="flex justify-between font-black text-white"><span>الحساب الكلي:</span><span class="text-brand-accent">${order.total} ج.م</span></div>
+
+          <div class="flex-1 flex flex-col h-full bg-brand-card/40">
+            <div class="p-2.5 border-b border-brand-border bg-brand-card flex items-center justify-between text-xs font-bold text-gray-300">
+              <span>💬 الشات المباشر</span>
+              <span class="text-[10px] bg-brand-black px-2 py-0.5 rounded border border-brand-border text-brand-accent">
+                وارد: ${stats.incoming} | صادر: ${stats.outgoing}
+              </span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar" id="admin-chat-messages"></div>
+            <div class="p-3 border-t border-brand-border bg-brand-card flex items-center gap-2">
+              <input type="text" id="admin-chat-input" onkeypress="if(event.key==='Enter') sendAdminMessage('${order.id}')" placeholder="اكتب ردك للعميل..." class="flex-1 bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
+              <button onclick="sendAdminMessage('${order.id}')" class="bg-brand-primary hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-xl">إرسال</button>
+            </div>
           </div>
         </div>
       `;
+
+      renderAdminChatMessages(order);
+    }
+
+    function renderAdminChatMessages(order) {
+      const container = document.getElementById('admin-chat-messages');
+      if (!container) return;
+
+      container.innerHTML = (order.messages || []).map(m => {
+        if (m.sender === 'system') return `<div class="text-center my-1.5"><span class="bg-white/5 text-gray-400 text-[10px] px-3 py-1 rounded-full">${m.text}</span></div>`;
+        const isMe = m.sender === 'admin';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <div class="max-w-[80%] rounded-2xl px-3 py-2 text-xs ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-brand-card border border-brand-border text-gray-200 rounded-bl-none'}">
+              <p class="text-[10px] opacity-70 mb-0.5">${isMe ? 'أنت (المطعم)' : order.customerName}</p>
+              <p>${m.text}</p>
+            </div>
+            <span class="text-[9px] text-gray-500 mt-0.5 px-1">${m.time}</span>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendAdminMessage(orderId) {
+      const input = document.getElementById('admin-chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const order = orders.find(o => o.id === orderId);
+      if (order) {
+        if (!order.messages) order.messages = [];
+        order.messages.push({
+          sender: 'admin',
+          text: text,
+          time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+        });
+        await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+        renderAdminChatMessages(order);
+        renderDashboardOrders();
+        input.value = '';
+      }
     }
 
     async function assignCourierToOrder(orderId, courierId) {
       const order = orders.find(o => o.id === orderId);
       if (order) {
         order.assignedCourierId = courierId || null;
-        if (courierId) order.status = 'onway';
+        if (courierId) {
+          order.status = 'onway';
+          const c = couriers.find(courier => courier.id === courierId);
+          order.messages.push({
+            sender: 'system',
+            text: `تم إسناد طلبك للكابتن ${c ? c.name : 'الدليفري'} وهو في الطريق إليك 🛵`,
+            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+          });
+        }
         await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+        renderDashboardOrders();
+        selectAdminOrder(orderId);
       }
     }
 
@@ -903,129 +1475,399 @@
         order.status = newStatus;
         if (newStatus !== 'pending') stopOrderAlarm();
         await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+        renderDashboardOrders();
+        renderSettlementRegister();
+        renderDailyReport();
+        selectAdminOrder(orderId);
       }
     }
 
-    // حفظ وجبة جديدة سحابياً في Supabase
-    async function saveMealToCloud() {
-      const name = document.getElementById('meal-name').value.trim();
-      const price = parseFloat(document.getElementById('meal-price').value);
-      const cat = document.getElementById('meal-cat').value;
-      const desc = document.getElementById('meal-desc').value.trim();
-      const imgUrl = document.getElementById('meal-img-url').value.trim();
+    // 9. Daily Shift Report & Settlement
+    function renderDailyReport() {
+      const settledOrders = orders.filter(o => o.status === 'settled' || o.status === 'delivered');
+      let totalRevenue = 0;
+      const itemCount = {};
 
-      if (!name || isNaN(price)) return alert('يرجى ملء الاسم والسعر');
+      settledOrders.forEach(o => {
+        totalRevenue += o.total;
+        o.items.forEach(i => {
+          itemCount[i.name] = (itemCount[i.name] || 0) + (i.qty || 1);
+        });
+      });
 
-      const newMeal = {
-        id: Date.now(),
-        category: cat,
-        name: name,
-        price: price,
-        desc: desc,
-        inStock: true,
-        img: imgUrl || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500'
-      };
+      let topItem = 'لا توجد مبيعات';
+      let maxCount = 0;
+      for (const [name, count] of Object.entries(itemCount)) {
+        if (count > maxCount) { maxCount = count; topItem = `${name} (${count} مرات)`; }
+      }
 
-      await supabaseClient.from('products').upsert({ id: newMeal.id, data: newMeal });
+      document.getElementById('report-total-revenue').innerText = `${totalRevenue} ج.م`;
+      document.getElementById('report-total-orders').innerText = settledOrders.length;
+      document.getElementById('report-top-item').innerText = topItem;
 
-      document.getElementById('meal-name').value = '';
-      document.getElementById('meal-price').value = '';
-      document.getElementById('meal-desc').value = '';
-      document.getElementById('meal-img-url').value = '';
-      alert('🎉 تم نشر الوجبة سحابياً بنجاح وتظهر لجميع المستخدمين الآن!');
-      loadCloudData();
+      const table = document.getElementById('report-orders-table');
+      if (settledOrders.length === 0) {
+        table.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs">لا توجد طلبات مكتملة بالوردية الحالية.</div>`;
+        return;
+      }
+
+      table.innerHTML = settledOrders.map(o => `
+        <div class="bg-brand-black p-3 rounded-2xl border border-brand-border flex items-center justify-between text-xs">
+          <div>
+            <span class="font-bold text-white">${o.id} - ${o.customerName}</span>
+            <span class="text-[10px] text-gray-400 block">${o.createdAt} | ${o.items.length} أصناف</span>
+          </div>
+          <span class="font-black text-emerald-400">${o.total} ج.م ${o.rating ? `(⭐${o.rating})` : ''}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderSettlementRegister() {
+      const container = document.getElementById('courier-settlements-container');
+      const badge = document.getElementById('dash-unsettled-badge');
+      const totalDisplay = document.getElementById('total-pending-cash');
+
+      const deliveredUnsettled = orders.filter(o => (o.status === 'delivered' || o.status === 'onway') && !o.cashSettled && o.assignedCourierId);
+
+      let totalCash = 0;
+      deliveredUnsettled.forEach(o => totalCash += o.total);
+      totalDisplay.innerText = `${totalCash} ج.م`;
+
+      if (deliveredUnsettled.length > 0) {
+        badge.classList.remove('hidden');
+        badge.innerText = deliveredUnsettled.length;
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      container.innerHTML = couriers.map(courier => {
+        const courierOrders = deliveredUnsettled.filter(o => o.assignedCourierId === courier.id);
+        const courierTotal = courierOrders.reduce((sum, o) => sum + o.total, 0);
+
+        return `
+          <div class="bg-brand-card border border-brand-border rounded-3xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-border pb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-brand-courier/20 text-brand-courier flex items-center justify-center font-black text-lg">🛵</div>
+                <div>
+                  <h4 class="font-bold text-sm text-white">${courier.name}</h4>
+                  <p class="text-[11px] text-gray-400">📞 ${courier.phone} | كود PIN: <b class="text-brand-accent">${courier.pin}</b></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-right">
+                  <span class="text-[10px] text-gray-400 block">إجمالي العهدة النقدية:</span>
+                  <span class="text-base font-black text-amber-400">${courierTotal} ج.م</span>
+                </div>
+                ${courierOrders.length > 0 ? `
+                  <button onclick="settleAllCourierCash('${courier.id}', ${courierTotal})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2.5 rounded-xl transition shadow-lg">
+                    💵 تصفية واستلام (${courierTotal} ج.م)
+                  </button>
+                ` : '<span class="text-xs bg-white/5 text-gray-500 px-3 py-1.5 rounded-xl">العهدة مصفاة ✅</span>'}
+              </div>
+            </div>
+            <div class="space-y-2">
+              <p class="text-xs text-gray-400 font-bold">الطلبات المسندة:</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                ${courierOrders.map(o => `
+                  <div class="bg-brand-black p-3 rounded-2xl border border-brand-border flex items-center justify-between">
+                    <div>
+                      <span class="font-black text-xs text-white">${o.id}</span>
+                      <span class="text-[10px] text-gray-400 block">${o.customerName}</span>
+                    </div>
+                    <span class="text-xs font-black text-amber-300">${o.total} ج.م</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function settleAllCourierCash(courierId, totalAmount) {
+      if (confirm(`تأكيد استلام (${totalAmount} ج.م) كاش وتصفية عهدة الكابتن؟`)) {
+        for (const o of orders) {
+          if (o.assignedCourierId === courierId && (o.status === 'delivered' || o.status === 'onway')) {
+            o.cashSettled = true;
+            o.status = 'settled';
+            await supabaseClient.from('orders').upsert({ id: o.id, data: o });
+          }
+        }
+        renderSettlementRegister();
+        renderDashboardOrders();
+        renderDailyReport();
+        alert('تم توريد المبلغ بنجاح للخزينة! 💰');
+      }
+    }
+
+    // 10. Courier Dashboard
+    function renderCourierDashboard() {
+      const courier = couriers.find(c => c.id === loggedCourierId);
+      if (!courier) return;
+
+      const myActiveDeliveries = orders.filter(o => o.assignedCourierId === courier.id && o.status === 'onway');
+      document.getElementById('courier-orders-count').innerText = myActiveDeliveries.length;
+
+      const list = document.getElementById('courier-orders-list');
+      if (myActiveDeliveries.length === 0) {
+        list.innerHTML = `<div class="text-center py-16 text-gray-500 text-xs">لا توجد طلبات توصيل قيد التنفيذ حالياً. ☕</div>`;
+        return;
+      }
+
+      list.innerHTML = myActiveDeliveries.map(order => {
+        const mapUrl = order.geoCoords ? `https://maps.google.com/?q=${order.geoCoords}` : `https://maps.google.com/?q=${encodeURIComponent(order.address)}`;
+        return `
+          <div class="bg-brand-card p-4 rounded-3xl border border-brand-border space-y-3 shadow-xl">
+            <div class="flex items-center justify-between border-b border-brand-border pb-2">
+              <span class="font-black text-sm text-brand-accent">طلب: ${order.id}</span>
+              <span class="text-xs font-black text-white bg-brand-courier px-2.5 py-1 rounded-lg">تحصيل: ${order.total} ج.م</span>
+            </div>
+            <div class="space-y-1 text-xs text-gray-300">
+              <p class="font-bold text-white">👤 العميل: ${order.customerName}</p>
+              <p class="text-gray-400">📍 العنوان: ${order.address}</p>
+            </div>
+            <div class="flex gap-2 pt-1">
+              <a href="tel:${order.customerPhone}" class="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2.5 rounded-xl text-center border border-white/15 transition flex items-center justify-center gap-1">📞 اتصال</a>
+              <a href="${mapUrl}" target="_blank" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold py-2.5 rounded-xl text-center border border-emerald-500/30 transition flex items-center justify-center gap-1">🗺️ خريطة</a>
+            </div>
+            <button onclick="confirmCourierDeliveredToCust('${order.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs shadow-lg transition">
+              ✅ تم تسليم الطلب للعميل واستلام (${order.total} ج.م) كاش في عهدتي
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function confirmCourierDeliveredToCust(orderId) {
+      if (confirm('تأكيد تسليم الوجبة للعميل واستلام المبلغ؟')) {
+        const order = orders.find(o => o.id === orderId);
+        if (order) {
+          order.status = 'delivered';
+          order.messages.push({
+            sender: 'system',
+            text: 'تم تسليم الطلب للعميل بنجاح، بالهناء والشفاء! ✅',
+            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+          });
+          await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+          renderCourierDashboard();
+          alert('تم التسليم بنجاح! المبلغ مقيد في عهدتك حتى توريده للكاشير.');
+        }
+      }
+    }
+
+    // 11. Meals Management & Stock Control (Cloud Sync)
+    async function toggleMealStock(id) {
+      const item = products.find(p => p.id === id);
+      if (item) {
+        item.inStock = !item.inStock;
+        await supabaseClient.from('products').upsert({ id: item.id, data: item });
+        renderDashboardMeals();
+        renderProducts(products);
+      }
     }
 
     function renderDashboardMeals() {
       document.getElementById('dash-meals-grid').innerHTML = products.map(item => `
-        <div class="bg-brand-card p-3 rounded-2xl border border-brand-border flex items-center justify-between gap-2">
+        <div class="bg-brand-card p-3 rounded-2xl border border-brand-border flex items-center justify-between gap-2 ${!item.inStock ? 'border-red-500/40 bg-red-950/10' : ''}">
           <div class="flex items-center gap-3">
-            <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover" />
-            <div><p class="font-bold text-xs text-white">${item.name}</p><p class="text-[11px] text-brand-accent font-semibold">${item.price} ج.م</p></div>
+            <img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-12 h-12 rounded-xl object-cover" />
+            <div>
+              <p class="font-bold text-xs text-white">${item.name}</p>
+              <p class="text-[11px] text-brand-accent font-semibold">${item.price} ج.م</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="toggleMealStock(${item.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold transition ${item.inStock ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">
+              ${item.inStock ? 'متوفر بالمطبخ ✅' : 'غير متوفر ❌'}
+            </button>
+            <button onclick="deleteMeal(${item.id})" class="text-xs bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2 py-1 rounded-lg">حذف</button>
           </div>
         </div>
       `).join('');
     }
 
-    // Settlement & Report
-    function renderDailyReport() {
-      const settled = orders.filter(o => o.status === 'settled' || o.status === 'delivered');
-      let total = 0; settled.forEach(o => total += o.total);
-      document.getElementById('report-total-revenue').innerText = `${total} ج.م`;
-      document.getElementById('report-total-orders').innerText = settled.length;
-    }
-
-    function renderSettlementRegister() {
-      const container = document.getElementById('courier-settlements-container');
-      const deliveredUnsettled = orders.filter(o => (o.status === 'delivered' || o.status === 'onway') && !o.cashSettled && o.assignedCourierId);
-      let totalCash = 0; deliveredUnsettled.forEach(o => totalCash += o.total);
-      document.getElementById('total-pending-cash').innerText = `${totalCash} ج.م`;
-      document.getElementById('dash-unsettled-badge').classList.toggle('hidden', deliveredUnsettled.length === 0);
-      document.getElementById('dash-unsettled-badge').innerText = deliveredUnsettled.length;
-
-      container.innerHTML = couriers.map(c => {
-        const cOrders = deliveredUnsettled.filter(o => o.assignedCourierId === c.id);
-        const cTotal = cOrders.reduce((sum, o) => sum + o.total, 0);
-        return `
-          <div class="bg-brand-card border border-brand-border rounded-3xl p-4 flex items-center justify-between">
-            <div><h4 class="font-bold text-xs text-white">${c.name}</h4><span class="text-amber-400 font-black text-sm">${cTotal} ج.م</span></div>
-            ${cOrders.length ? `<button onclick="settleCash('${c.id}')" class="bg-emerald-600 text-white font-black text-xs px-3 py-2 rounded-xl">💵 تصفية واستلام</button>` : '<span class="text-xs text-gray-500">مصفاة ✅</span>'}
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function settleCash(courierId) {
-      if (confirm('تأكيد استلام النقدية في الخزينة؟')) {
-        for (const o of orders) {
-          if (o.assignedCourierId === courierId && (o.status === 'delivered' || o.status === 'onway')) {
-            o.cashSettled = true; o.status = 'settled';
-            await supabaseClient.from('orders').upsert({ id: o.id, data: o });
-          }
-        }
+    function previewImage(event, imgId, boxId) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (imgId === 'meal-preview') tempMealImg = e.target.result;
+          if (imgId === 'deal-preview') tempDealImg = e.target.result;
+          document.getElementById(imgId).src = e.target.result;
+          document.getElementById(boxId).classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
       }
     }
 
-    // 8. Courier Dashboard
-    function renderCourierDashboard() {
-      const courier = couriers.find(c => c.id === loggedCourierId);
-      if (!courier) return;
-      const myDeliveries = orders.filter(o => o.assignedCourierId === courier.id && o.status === 'onway');
-      document.getElementById('courier-orders-count').innerText = myDeliveries.length;
-      const list = document.getElementById('courier-orders-list');
-      if (myDeliveries.length === 0) { list.innerHTML = `<div class="text-center py-16 text-gray-500 text-xs">لا توجد طلبات مسندة إليك حالياً. ☕</div>`; return; }
+    async function saveMeal() {
+      const editId = document.getElementById('edit-meal-id').value;
+      const name = document.getElementById('meal-name').value.trim();
+      const price = parseFloat(document.getElementById('meal-price').value);
+      const cat = document.getElementById('meal-cat').value;
+      const desc = document.getElementById('meal-desc').value.trim();
+      const directUrl = document.getElementById('meal-img-url-direct').value.trim();
 
-      list.innerHTML = myDeliveries.map(order => {
-        const mapUrl = order.geoCoords ? `https://maps.google.com/?q=${order.geoCoords}` : `https://maps.google.com/?q=${encodeURIComponent(order.address)}`;
-        return `
-          <div class="bg-brand-card p-4 rounded-3xl border border-brand-border space-y-3">
-            <div class="flex justify-between"><span class="font-black text-sm text-brand-accent">${order.id}</span><span class="text-xs font-black text-white bg-brand-courier px-2.5 py-1 rounded-lg">تحصيل: ${order.total} ج.م</span></div>
-            <p class="text-xs text-white">👤 ${order.customerName} | 📍 ${order.address}</p>
-            <div class="flex gap-2">
-              <a href="tel:${order.customerPhone}" class="flex-1 bg-white/10 text-white text-xs font-bold py-2 rounded-xl text-center">📞 اتصال</a>
-              <a href="${mapUrl}" target="_blank" class="flex-1 bg-emerald-600/20 text-emerald-400 text-xs font-bold py-2 rounded-xl text-center">🗺️ خريطة</a>
-            </div>
-            <button onclick="courierDeliver('${order.id}')" class="w-full bg-emerald-600 text-white font-black py-2.5 rounded-xl text-xs">✅ تم التسليم واستلام الكاش</button>
-          </div>
-        `;
-      }).join('');
+      if (!name || isNaN(price)) return alert('يرجى ملء الاسم والسعر');
+
+      const imgToUse = directUrl || tempMealImg || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500';
+
+      const mealObj = {
+        id: editId ? parseInt(editId) : Date.now(),
+        category: cat,
+        name: name,
+        price: price,
+        desc: desc,
+        inStock: true,
+        img: imgToUse
+      };
+
+      await supabaseClient.from('products').upsert({ id: mealObj.id, data: mealObj });
+
+      resetMealForm();
+      alert('🎉 تم نشر الوجبة سحابياً بنجاح وتظهر الآن لجميع الزوار!');
+      loadCloudData();
     }
 
-    async function courierDeliver(orderId) {
-      const order = orders.find(o => o.id === orderId);
-      if (order && confirm('تأكيد تسليم الوجبة واستلام المبلغ؟')) {
-        order.status = 'delivered';
-        await supabaseClient.from('orders').upsert({ id: order.id, data: order });
+    function resetMealForm() {
+      document.getElementById('edit-meal-id').value = '';
+      document.getElementById('meal-name').value = '';
+      document.getElementById('meal-price').value = '';
+      document.getElementById('meal-desc').value = '';
+      document.getElementById('meal-img-url-direct').value = '';
+      document.getElementById('meal-image-file').value = '';
+      document.getElementById('meal-preview-box').classList.add('hidden');
+      document.getElementById('meal-form-title').innerText = '➕ إضافة وجبة جديدة (تُنشر سحابياً للجميع)';
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      tempMealImg = '';
+    }
+
+    async function deleteMeal(id) {
+      if (confirm('حذف هذه الوجبة نهائياً من القائمة السحابية؟')) {
+        await supabaseClient.from('products').delete().eq('id', id);
+        deals = deals.filter(d => d.linkedItemId !== id);
+        syncLocalMisc();
+        loadCloudData();
       }
     }
 
-    function printKitchenReceipt(orderId) {
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return;
-      document.getElementById('receipt-details').innerHTML = `<p>الطلب: ${order.id}</p><p>العميل: ${order.customerName}</p><p>الهاتف: ${order.customerPhone}</p><p>العنوان: ${order.address}</p>`;
-      document.getElementById('receipt-items').innerHTML = order.items.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${i.unitPrice * i.qty} ج.م</span></div>`).join('');
-      document.getElementById('receipt-total').innerHTML = `الإجمالي: ${order.total} ج.م`;
-      window.print();
+    // 12. Couriers Management
+    function renderAdminCouriersList() {
+      const list = document.getElementById('admin-couriers-list');
+      list.innerHTML = couriers.map(c => `
+        <div class="bg-brand-card p-3.5 rounded-2xl border border-brand-border flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-xs text-white">🛵 ${c.name}</h4>
+            <p class="text-[11px] text-gray-400">📞 ${c.phone} | كود PIN: <b class="text-brand-accent font-mono">${c.pin}</b></p>
+          </div>
+          <button onclick="deleteCourier('${c.id}')" class="text-xs bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2 py-1 rounded-lg transition">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function addNewCourier() {
+      const name = document.getElementById('new-courier-name').value.trim();
+      const phone = document.getElementById('new-courier-phone').value.trim();
+      const pin = document.getElementById('new-courier-pin').value.trim();
+
+      if (!name || !pin) return alert('يرجى كتابة اسم الطيار وكود الدخول');
+
+      couriers.push({ id: 'c_' + Date.now(), name: name, phone: phone || '---', pin: pin });
+      syncLocalMisc();
+      renderAdminCouriersList();
+      renderSettlementRegister();
+      document.getElementById('new-courier-name').value = '';
+      document.getElementById('new-courier-phone').value = '';
+      document.getElementById('new-courier-pin').value = '';
+    }
+
+    function deleteCourier(id) {
+      if (confirm('حذف حساب هذا الطيار؟')) {
+        couriers = couriers.filter(c => c.id !== id);
+        syncLocalMisc();
+        renderAdminCouriersList();
+        renderSettlementRegister();
+      }
+    }
+
+    // 13. Slider & Deals Management
+    function renderSlider() {
+      const track = document.getElementById('slider-track');
+      const dots = document.getElementById('slider-dots');
+      const section = document.getElementById('hero-slider-section');
+
+      if (!deals || deals.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+
+      track.innerHTML = deals.map(deal => `
+        <div class="min-w-full relative h-48 sm:h-64 cursor-pointer overflow-hidden flex-shrink-0" onclick="goToProduct(${deal.linkedItemId})">
+          <img src="${deal.bannerImg}" class="w-full h-full object-cover brightness-[0.75]" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-4 sm:p-6">
+            <span class="bg-brand-accent text-black font-black text-[10px] px-2 py-0.5 rounded w-max mb-1">عرض خاص 🔥</span>
+            <h2 class="text-white font-black text-sm sm:text-xl">${deal.title}</h2>
+          </div>
+        </div>
+      `).join('');
+
+      dots.innerHTML = deals.map((_, idx) => `
+        <button onclick="goToSlide(${idx})" class="w-2.5 h-2.5 rounded-full ${idx === currentSlide ? 'bg-brand-primary w-6' : 'bg-white/40'}"></button>
+      `).join('');
+      track.style.transform = `translateX(${currentSlide * 100}%)`;
+    }
+
+    function nextSlide() { if(deals.length > 1) { currentSlide = (currentSlide + 1) % deals.length; renderSlider(); } }
+    function prevSlide() { if(deals.length > 1) { currentSlide = (currentSlide - 1 + deals.length) % deals.length; renderSlider(); } }
+    function goToSlide(i) { currentSlide = i; renderSlider(); }
+
+    function goToProduct(id) {
+      filterCategory('all');
+      setTimeout(() => {
+        const el = document.getElementById(`product-card-${id}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+
+    function addDealBanner() {
+      const title = document.getElementById('deal-title').value.trim();
+      const linkedId = parseInt(document.getElementById('deal-linked-item').value);
+      const directUrl = document.getElementById('deal-img-url-direct').value.trim();
+      const imgToUse = directUrl || tempDealImg;
+
+      if (!title || !imgToUse) return alert('يرجى وضع عنوان العرض والصورة');
+
+      deals.unshift({ id: Date.now(), title: title, linkedItemId: linkedId, bannerImg: imgToUse });
+      syncLocalMisc();
+      renderDashboardBanners();
+      renderSlider();
+      document.getElementById('deal-title').value = '';
+      document.getElementById('deal-img-url-direct').value = '';
+      document.getElementById('deal-image-file').value = '';
+      document.getElementById('deal-preview-box').classList.add('hidden');
+      tempDealImg = '';
+    }
+
+    function deleteDeal(id) {
+      if (confirm('حذف هذا البنر؟')) {
+        deals = deals.filter(d => d.id !== id);
+        syncLocalMisc();
+        renderDashboardBanners();
+        renderSlider();
+      }
+    }
+
+    function renderDashboardBanners() {
+      document.getElementById('deal-linked-item').innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      document.getElementById('dash-banners-list').innerHTML = deals.map(d => `
+        <div class="bg-brand-card p-3 rounded-2xl border border-brand-border flex items-center justify-between gap-2">
+          <img src="${d.bannerImg}" class="w-16 h-10 rounded-lg object-cover" />
+          <p class="font-bold text-xs text-white flex-1 line-clamp-1">${d.title}</p>
+          <button onclick="deleteDeal(${d.id})" class="text-xs bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2.5 py-1 rounded-lg">حذف</button>
+        </div>
+      `).join('');
     }
 
     function filterCategory(cat, btn) {
@@ -1042,7 +1884,7 @@
       else renderProducts(products.filter(p => p.category === cat));
     }
 
-    // تشغيل النظام السحابي
+    // 14. App Initialization
     loadCloudData();
     updateCartState();
     if (authRole === 'admin') navigateView('admin-dashboard');
