@@ -7,7 +7,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   
   <!-- Supabase Cloud SDK -->
@@ -38,7 +38,10 @@
   <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
+    .story-ring {
+      background: linear-gradient(45deg, #e63946, #ffb703, #ff0055);
+      padding: 2.5px;
+    }
     @media print {
       body * { visibility: hidden; }
       #thermal-receipt, #thermal-receipt * { visibility: visible; }
@@ -58,81 +61,240 @@
 </head>
 <body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen selection:bg-brand-primary selection:text-white">
 
-  <!-- Toast Notification (إشعار إضافة هادئ بدون مقاطعة التصفح) -->
+  <!-- Toast Notification -->
   <div id="toast-notify" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-emerald-600/95 backdrop-blur-md text-white font-bold text-xs px-5 py-2.5 rounded-2xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4">
     <span id="toast-text">تمت الإضافة للسلة بنجاح</span>
   </div>
 
+  <!-- زر واتساب العائم -->
+  <a href="https://wa.me/201011112222" target="_blank" class="fixed bottom-20 left-4 sm:bottom-6 sm:left-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition transform hover:scale-110 border-2 border-white/20">
+    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.539 1.772.818 2.79.818 3.18 0 5.767-2.587 5.768-5.766.001-3.181-2.586-5.768-5.767-5.768zm3.393 8.243c-.144.405-.837.774-1.17.824-.312.045-.698.074-2.007-.468-1.583-.655-2.61-2.24-2.689-2.345-.078-.105-.648-.864-.648-1.649 0-.785.405-1.171.55-1.33.144-.159.314-.199.419-.199.105 0 .21.002.302.006.097.004.227-.037.355.271.131.314.446 1.085.485 1.164.039.079.065.171.013.276-.052.105-.078.17-.157.262-.079.092-.165.205-.236.276-.079.079-.161.164-.069.322.092.158.409.674.877 1.09 1.018.905 1.488 1.003 1.701 1.096.213.093.338.079.465-.066.128-.145.548-.638.693-.858.145-.22.29-.184.485-.112.195.072 1.236.583 1.448.688.212.105.353.158.405.247.052.089.052.518-.092.923z"/></svg>
+  </a>
+
   <!-- ================= 1. STOREFRONT VIEW ================= -->
-  <div id="view-storefront" class="min-h-screen pb-28">
+  <div id="view-storefront" class="min-h-screen pb-20">
+    
+    <!-- شريط الإعلان العلوي الديناميكي -->
+    <div id="top-announcement-bar" class="bg-gradient-to-r from-brand-primary via-orange-600 to-brand-primary text-white text-[11px] sm:text-xs font-bold py-1.5 px-4 text-center flex items-center justify-center gap-2">
+      <span id="announcement-text">🔥 استخدم كود الخصم <b class="bg-black/30 px-2 py-0.5 rounded font-mono text-brand-accent">GRILL20</b> لخصم 20% على إجمالي طلبك!</span>
+      <span class="hidden md:inline text-white/60">|</span>
+      <span class="hidden md:inline">🛵 دليفري سريع وساخن</span>
+    </div>
+
+    <!-- Header الملاحة -->
     <header class="sticky top-0 z-40 bg-brand-black/95 backdrop-blur-md border-b border-brand-border px-4 py-3">
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-orange-600 flex items-center justify-center font-black text-lg text-white shadow-lg">G&C</div>
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-primary to-orange-600 flex items-center justify-center font-black text-lg text-white shadow-lg">G&C</div>
           <div>
-            <h1 class="font-black text-base leading-tight">GRILL & CRISPY</h1>
-            <p class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> المنيو المباشر السحابي
+            <h1 class="font-black text-base sm:text-lg leading-tight tracking-wide">GRILL & CRISPY</h1>
+            <p class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> المطبخ مفتوح للتوصيل الآن
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button onclick="toggleCustomerOrders(true)" class="relative bg-brand-card hover:bg-brand-cardLight border border-brand-border px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="toggleCustomerOrders(true)" class="relative bg-brand-card hover:bg-brand-cardLight border border-brand-border px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-200">
             <span>📦 طلباتي</span>
             <span id="cust-orders-badge" class="hidden bg-emerald-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">0</span>
           </button>
           
-          <button onclick="navigateView('login-gate')" class="text-xs bg-brand-card hover:bg-brand-cardLight text-gray-300 border border-brand-border px-3 py-2 rounded-xl transition flex items-center gap-1 font-bold">
+          <button onclick="navigateView('login-gate')" class="text-xs bg-brand-card hover:bg-brand-cardLight text-gray-400 hover:text-white border border-brand-border px-3 py-2 rounded-xl transition flex items-center gap-1 font-bold">
             <span>🔒 تسجيل الدخول</span>
           </button>
 
-          <button onclick="toggleCart(true)" class="relative bg-brand-card hover:bg-brand-cardLight border border-brand-border px-3.5 py-2 rounded-xl flex items-center gap-2 transition text-sm font-bold">
+          <button onclick="toggleCart(true)" class="relative bg-brand-primary hover:bg-red-600 text-white px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm font-black shadow-lg">
             <span>🛒 السلة</span>
-            <span id="nav-cart-badge" class="bg-brand-primary text-white text-xs px-2 py-0.5 rounded-full font-black">0</span>
+            <span id="nav-cart-badge" class="bg-brand-black text-brand-accent text-xs px-2 py-0.5 rounded-full font-black">0</span>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Slider العروض والبنرات -->
-    <section class="max-w-6xl mx-auto px-4 pt-4 pb-2" id="hero-slider-section">
+    <!-- شريط الاستوريز -->
+    <section class="max-w-6xl mx-auto px-4 pt-4 pb-2">
+      <div class="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+        <div onclick="filterCategory('burgers')" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" class="w-full h-full object-cover rounded-full" />
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-gray-300 group-hover:text-brand-accent transition">سماش برجر</span>
+        </div>
+        <div onclick="filterCategory('crispy')" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=200" class="w-full h-full object-cover rounded-full" />
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-gray-300 group-hover:text-brand-accent transition">كرسبي فرايد</span>
+        </div>
+        <div onclick="filterCategory('combos')" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=200" class="w-full h-full object-cover rounded-full" />
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-brand-accent transition">عروض التوفير 🔥</span>
+        </div>
+        <div onclick="filterCategory('sides')" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200" class="w-full h-full object-cover rounded-full" />
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-gray-300 group-hover:text-brand-accent transition">مقبلات وصوص</span>
+        </div>
+        <div onclick="filterCategory('drinks')" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200" class="w-full h-full object-cover rounded-full" />
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-gray-300 group-hover:text-brand-accent transition">مشروبات منعشة</span>
+        </div>
+        <div onclick="document.getElementById('reviews-section').scrollIntoView({behavior:'smooth'})" class="flex flex-col items-center gap-1.5 cursor-pointer flex-shrink-0 group">
+          <div class="story-ring rounded-full shadow-lg group-hover:scale-105 transition duration-300">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-card p-0.5 border-2 border-brand-black overflow-hidden flex items-center justify-center text-xl bg-gradient-to-br from-amber-500 to-red-600">
+              ⭐
+            </div>
+          </div>
+          <span class="text-[11px] font-bold text-amber-400 group-hover:text-white transition">تقييماتنا ❤️</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slider العروض الرئيسية -->
+    <section class="max-w-6xl mx-auto px-4 pt-2 pb-2" id="hero-slider-section">
       <div class="relative overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-2xl">
         <div id="slider-track" class="flex transition-transform duration-500 ease-out"></div>
-        <button onclick="prevSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10">❯</button>
-        <button onclick="nextSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10">❮</button>
+        <button onclick="prevSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10 transition">❯</button>
+        <button onclick="nextSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-brand-primary text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 z-10 transition">❮</button>
         <div id="slider-dots" class="absolute bottom-3 inset-x-0 flex justify-center gap-2 z-10"></div>
       </div>
     </section>
 
-    <!-- Categories -->
-    <section class="sticky top-[61px] z-30 bg-brand-black/95 backdrop-blur-md py-3 border-b border-brand-border">
-      <div class="max-w-6xl mx-auto px-4 flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <button onclick="filterCategory('all', this)" class="cat-btn active px-4 py-2 rounded-xl text-xs font-bold border border-brand-primary bg-brand-primary text-white transition whitespace-nowrap">الكل 🔥</button>
-        <button onclick="filterCategory('burgers', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap">برجر 🍔</button>
-        <button onclick="filterCategory('crispy', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap">فرايد تشيكن 🍗</button>
-        <button onclick="filterCategory('combos', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap">عروض التوفير 💥</button>
+    <!-- سكشن أعد طلبك المفضل -->
+    <section class="max-w-6xl mx-auto px-4 py-3 hidden" id="reorder-section">
+      <div class="bg-gradient-to-r from-brand-card via-brand-cardLight to-brand-card border border-brand-border p-4 rounded-3xl space-y-3 shadow-xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🔁</span>
+            <h3 class="font-black text-sm text-white">طلبك المفضل الأخير (أعد الطلب بنقرة واحدة)</h3>
+          </div>
+          <span class="text-[10px] text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">توفير الوقت ⚡</span>
+        </div>
+        <div class="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar" id="reorder-items-box"></div>
       </div>
     </section>
 
-    <!-- Menu Grid -->
+    <!-- شريط البحث اللحظي السريع -->
+    <section class="max-w-6xl mx-auto px-4 pt-2 pb-1">
+      <div class="relative">
+        <input type="text" id="menu-search-input" oninput="handleMenuSearch(this.value)" placeholder="🔍 ابحث عن وجبة، ساندوتش، أو صوص معين..." class="w-full bg-brand-card border border-brand-border rounded-2xl px-4 py-3 pr-11 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-primary transition shadow-inner" />
+        <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">🍔</span>
+      </div>
+    </section>
+
+    <!-- شريط التصنيفات -->
+    <section class="sticky top-[61px] z-30 bg-brand-black/95 backdrop-blur-md py-3 border-b border-brand-border">
+      <div class="max-w-6xl mx-auto px-4 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <button onclick="filterCategory('all', this)" class="cat-btn active px-4 py-2 rounded-xl text-xs font-black border border-brand-primary bg-brand-primary text-white transition whitespace-nowrap shadow-lg">الكل 🔥</button>
+        <button onclick="filterCategory('burgers', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap hover:border-brand-primary/50">برجر سماش 🍔</button>
+        <button onclick="filterCategory('crispy', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap hover:border-brand-primary/50">فرايد تشيكن 🍗</button>
+        <button onclick="filterCategory('combos', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap hover:border-brand-primary/50">عروض التوفير 💥</button>
+        <button onclick="filterCategory('sides', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap hover:border-brand-primary/50">مقبلات وصوصات 🍟</button>
+        <button onclick="filterCategory('drinks', this)" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold border border-brand-border bg-brand-card text-gray-300 transition whitespace-nowrap hover:border-brand-primary/50">مشروبات 🥤</button>
+      </div>
+    </section>
+
+    <!-- شبكة عرض الوجبات -->
     <main class="max-w-6xl mx-auto px-4 py-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-black text-white" id="category-title">قائمة الطعام المختارة</h2>
+          <p class="text-xs text-gray-400">اختر وجبتك المفضلة وخصص الحجم والإضافات كما تحب</p>
+        </div>
+      </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="items-grid"></div>
     </main>
 
+    <!-- سكشن آراء وتقييمات العملاء الحية -->
+    <section class="max-w-6xl mx-auto px-4 py-8 border-t border-brand-border" id="reviews-section">
+      <div class="text-center space-y-1 mb-6">
+        <span class="text-xs font-black text-brand-accent bg-brand-accent/10 px-3 py-1 rounded-full border border-brand-accent/20">آراء زبائننا الحقيقية ❤️</span>
+        <h3 class="text-xl font-black text-white">ماذا يقول عشاق Grill & Crispy عن تجاربهم؟</h3>
+        <p class="text-xs text-emerald-400 font-bold" id="reviews-average-text">⭐ متوسط التقييم العام 4.9/5 من أصل طلبات الدليفري</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="live-reviews-grid"></div>
+    </section>
+
+    <!-- الفوتر مع أيقونات السوشيال الحقيقية -->
+    <footer class="bg-brand-sidebar border-t border-brand-border mt-10 pt-10 pb-24 text-gray-400 text-xs">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        
+        <!-- عن المطعم -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center font-black text-white text-sm">G&C</div>
+            <h3 class="font-black text-white text-sm">GRILL & CRISPY</h3>
+          </div>
+          <p class="text-[11px] leading-relaxed">أفضل تجربة برجر سماش وفرايد تشيكن بأجود المكونات الطازجة واللحوم البلدية يومياً.</p>
+          <div class="flex items-center gap-3 text-white">
+            <!-- Facebook -->
+            <a href="https://facebook.com" target="_blank" class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center hover:bg-blue-600 hover:border-transparent transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <!-- Instagram -->
+            <a href="https://instagram.com" target="_blank" class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center hover:bg-gradient-to-tr hover:from-amber-500 hover:via-pink-500 hover:to-purple-500 hover:border-transparent transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <!-- TikTok -->
+            <a href="https://tiktok.com" target="_blank" class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center hover:bg-black hover:border-brand-primary transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-white text-xs border-b border-brand-border pb-1">⏰ مواعيد العمل والتوصيل</h4>
+          <p class="text-[11px]">يومياً: 12:00 ظهراً - 02:30 صباحاً</p>
+          <p class="text-[11px] text-emerald-400 font-bold">خدمة التوصيل السريع متاحة طوال ساعات العمل</p>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-white text-xs border-b border-brand-border pb-1">📞 الخط الساخن والطلبات</h4>
+          <p class="text-[11px]">هاتف المطعم: <a href="tel:01011112222" class="text-white font-bold underline font-mono">01011112222</a></p>
+          <p class="text-[11px]">واتساب الإدارة: <a href="https://wa.me/201011112222" class="text-emerald-400 font-bold font-mono">01011112222</a></p>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-white text-xs border-b border-brand-border pb-1">📍 فروعنا وموقعنا</h4>
+          <p class="text-[11px] text-white font-bold">الفرع الرئيسي: شارع الجمهورية - بجوار البنك الأهلي</p>
+          <p class="text-[11px]">توصيل يغطي كافة أنحاء المدينة والمناطق المجاورة.</p>
+        </div>
+
+      </div>
+      <div class="border-t border-brand-border/60 pt-4 text-center text-[10px] text-gray-500">
+        جميع الحقوق محفوظة © 2026 مطعم Grill & Crispy - مدعوم بأحدث منظومة سحابية لإدارة المطاعم
+      </div>
+    </footer>
+
     <!-- Mobile Sticky Cart -->
     <div id="sticky-bar" class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-30 hidden">
-      <button onclick="toggleCart(true)" class="w-full bg-brand-primary hover:bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm transition">
+      <button onclick="toggleCart(true)" class="w-full bg-brand-primary hover:bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm transition transform hover:scale-[1.02]">
         <div class="flex items-center gap-2">
           <span class="bg-black/30 px-2.5 py-1 rounded-lg text-xs" id="bar-items-count">0</span>
           <span>عرض السلة وإتمام الطلب</span>
         </div>
-        <span class="text-base" id="bar-total-price">0 ج.م</span>
+        <span class="text-base text-brand-accent font-black" id="bar-total-price">0 ج.م</span>
       </button>
     </div>
   </div>
 
-  <!-- ================= 2. SECURE LOGIN GATE ================= -->
+  <!-- ================= 2. LOGIN GATE ================= -->
   <div id="view-login-gate" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-black via-brand-card to-brand-black">
     <div class="w-full max-w-md bg-brand-card border border-brand-border p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
       <div class="text-center space-y-2">
@@ -168,7 +330,6 @@
   <!-- ================= 3. ADMIN POS DASHBOARD ================= -->
   <div id="view-admin-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-brand-black">
     
-    <!-- صوت التنبيه المستمر للطلبات الجديدة -->
     <div id="alarm-banner" class="hidden fixed top-0 inset-x-0 bg-red-600 text-white z-50 p-3 flex items-center justify-between shadow-2xl animate-pulse">
       <div class="flex items-center gap-2 font-black text-sm">
         <span class="text-xl">🔔</span>
@@ -193,18 +354,21 @@
             <span>🔔 الطلبات الحية والشات</span>
             <span id="dash-orders-badge" class="bg-black/30 px-2 py-0.5 rounded-md text-[10px]">0</span>
           </button>
+          <button onclick="switchAdminSection('promo')" id="nav-sec-promo" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
+            <span>🏷️ كود الخصم والإعلانات</span>
+          </button>
           <button onclick="switchAdminSection('settlement')" id="nav-sec-settlement" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>💰 دفتر الخزينة والعهد المالية</span>
+            <span>💰 دفتر الخزينة والعهد</span>
             <span id="dash-unsettled-badge" class="hidden bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px] font-black">0</span>
           </button>
           <button onclick="switchAdminSection('reports')" id="nav-sec-reports" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>📊 تقرير إغلاق الوردية اليومي</span>
+            <span>📊 تقرير إغلاق الوردية</span>
           </button>
           <button onclick="switchAdminSection('couriers')" id="nav-sec-couriers" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
             <span>🛵 حسابات الطيارين</span>
           </button>
           <button onclick="switchAdminSection('meals')" id="nav-sec-meals" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
-            <span>🍔 قائمة الوجبات (سحابية)</span>
+            <span>🍔 قائمة الوجبات والتعديل</span>
           </button>
           <button onclick="switchAdminSection('banners')" id="nav-sec-banners" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-brand-card transition">
             <span>⚡ بنرات السلايدر</span>
@@ -219,7 +383,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
-      <!-- Section 1: Orders & Live Split Chat -->
+      <!-- Section 1: Orders -->
       <div id="admin-sec-orders" class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
         <div class="w-full md:w-2/5 border-b md:border-b-0 md:border-l border-brand-border flex flex-col h-full bg-brand-card">
           <div class="p-3 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
@@ -232,6 +396,43 @@
           <div class="flex-1 flex items-center justify-center p-8 text-center text-gray-500 text-xs">
             👈 اختر طلباً لمتابعته، طباعة بون المطبخ، إسناده للطيار، أو التحدث المباشر
           </div>
+        </div>
+      </div>
+
+      <!-- Section: Promo Code Settings -->
+      <div id="admin-sec-promo" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
+        <h3 class="text-base font-black text-white">🏷️ إعدادات كود الخصم الترويجي وشريط الإعلانات</h3>
+        <div class="bg-brand-card border border-brand-border p-5 rounded-3xl space-y-4 max-w-xl">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <div>
+              <h4 class="font-bold text-xs text-white">تفعيل نظام كود الخصم</h4>
+              <p class="text-[11px] text-gray-400">إظهار الخصم في المتجر وتطبيقه على السلة</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="admin-promo-active" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-brand-black peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-bold text-gray-300 mb-1">كود الخصم (Promo Code):</label>
+              <input type="text" id="admin-promo-code" placeholder="مثال: GRILL20" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-white uppercase focus:outline-none" />
+            </div>
+            <div>
+              <label class="block font-bold text-gray-300 mb-1">نسبة الخصم (%):</label>
+              <input type="number" id="admin-promo-percent" placeholder="مثال: 20" min="1" max="100" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-300 mb-1">نص الشريط الإعلاني العلوي في المتجر:</label>
+            <input type="text" id="admin-promo-text" placeholder="مثال: 🔥 استخدم كود الخصم GRILL20 لخصم 20% على طلبك!" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+          </div>
+
+          <button onclick="savePromoSettingsToCloud()" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-3 rounded-xl transition shadow-lg">
+            💾 حفظ ونشر إعدادات الخصم سحابياً
+          </button>
         </div>
       </div>
 
@@ -298,24 +499,26 @@
         <div class="space-y-3 max-w-xl" id="admin-couriers-list"></div>
       </div>
 
-      <!-- Section 5: Meals & Stock Control (Cloud Sync) -->
+      <!-- Section 5: Meals Management with Editing -->
       <div id="admin-sec-meals" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
-        <h3 class="text-base font-black text-white">🍔 إدارة الوجبات والتوفر بالمطبخ</h3>
+        <h3 class="text-base font-black text-white">🍔 إدارة الوجبات وتعديلها</h3>
         <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-3 max-w-2xl">
           <div class="flex items-center justify-between">
-            <h4 id="meal-form-title" class="text-xs font-bold text-brand-primary">➕ إضافة وجبة جديدة (تُنشر سحابياً للجميع)</h4>
-            <button id="cancel-edit-btn" onclick="resetMealForm()" class="hidden text-[11px] text-gray-400 bg-white/10 px-2.5 py-1 rounded-lg">إلغاء</button>
+            <h4 id="meal-form-title" class="text-xs font-bold text-brand-primary">➕ إضافة صنف جديد (يُنشر سحابياً للجميع)</h4>
+            <button id="cancel-edit-btn" onclick="resetMealForm()" class="hidden text-[11px] text-gray-400 bg-white/10 px-2.5 py-1 rounded-lg">إلغاء التعديل</button>
           </div>
           <input type="hidden" id="edit-meal-id" value="" />
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <input type="text" id="meal-name" placeholder="اسم الوجبة" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+            <input type="text" id="meal-name" placeholder="اسم الوجبة أو الصنف" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
             <input type="number" id="meal-price" placeholder="السعر (ج.م)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
             <select id="meal-cat" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none">
-              <option value="burgers">برجر 🍔</option>
+              <option value="burgers">برجر سماش 🍔</option>
               <option value="crispy">فرايد تشيكن 🍗</option>
               <option value="combos">عروض توفير 💥</option>
+              <option value="sides">مقبلات وصوصات 🍟</option>
+              <option value="drinks">مشروبات 🥤</option>
             </select>
-            <input type="text" id="meal-img-url-direct" placeholder="أو ضع رابط صورة مباشر (URL)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
+            <input type="text" id="meal-img-url-direct" placeholder="رابط صورة مباشر (URL)" class="bg-brand-black border border-brand-border rounded-xl p-2.5 text-white focus:outline-none" />
           </div>
           <textarea id="meal-desc" placeholder="المكونات..." rows="2" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></textarea>
           <div>
@@ -325,7 +528,7 @@
               <img id="meal-preview" src="" class="w-20 h-20 object-cover rounded-xl border border-brand-border" />
             </div>
           </div>
-          <button onclick="saveMeal()" id="meal-submit-btn" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ نشر الوجبة سحابياً فوراً</button>
+          <button onclick="saveMeal()" id="meal-submit-btn" class="w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition">+ نشر الصنف سحابياً فوراً</button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="dash-meals-grid"></div>
       </div>
@@ -336,7 +539,7 @@
         <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-3 max-w-2xl">
           <input type="text" id="deal-title" placeholder="عنوان العرض" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
           <select id="deal-linked-item" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none"></select>
-          <input type="text" id="deal-img-url-direct" placeholder="أو ضع رابط صورة البنر مباشرة (URL)" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
+          <input type="text" id="deal-img-url-direct" placeholder="رابط صورة البنر مباشرة (URL)" class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
           <div>
             <label class="block text-xs text-gray-300 font-bold mb-1">🖼️ أو ارفع صورة البنر:</label>
             <input type="file" id="deal-image-file" accept="image/*" onchange="previewImage(event, 'deal-preview', 'deal-preview-box')" class="block w-full text-xs text-gray-400 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-cardLight file:text-white cursor-pointer" />
@@ -385,7 +588,6 @@
         <button onclick="closeMealCustomizer()" class="text-gray-400 hover:text-white text-lg">✕</button>
       </div>
 
-      <!-- اختيار الحجم -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-gray-300">1. اختر الحجم:</label>
         <div class="grid grid-cols-3 gap-2 text-xs" id="size-options">
@@ -395,7 +597,6 @@
         </div>
       </div>
 
-      <!-- إضافات مدفوعة -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-gray-300">2. إضافات مميزة (اختياري):</label>
         <div class="space-y-1.5 text-xs text-gray-300">
@@ -414,13 +615,11 @@
         </div>
       </div>
 
-      <!-- تعليمات خاصة -->
       <div class="space-y-1">
         <label class="block text-xs font-bold text-gray-300">3. ملاحظات المطبخ:</label>
         <input type="text" id="customizer-notes" placeholder="مثال: بدون بصل، صوص حار زيادة..." class="w-full bg-brand-black border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none" />
       </div>
 
-      <!-- عداد الكمية قبل الإضافة -->
       <div class="flex items-center justify-between bg-brand-black p-3 rounded-2xl border border-brand-border">
         <span class="text-xs font-bold text-gray-300">الكمية المطلوبة:</span>
         <div class="flex items-center gap-3">
@@ -452,14 +651,13 @@
       <div class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar" id="cart-items-container"></div>
       
       <div class="p-4 border-t border-brand-border bg-brand-black/60 space-y-3">
-        <!-- كود الخصم -->
-        <div class="flex gap-2">
-          <input type="text" id="promo-input" placeholder="كود الخصم (مثل: GRILL20)" class="flex-1 bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs text-white uppercase focus:outline-none" />
+        <!-- كود الخصم الديناميكي -->
+        <div id="promo-input-box" class="flex gap-2">
+          <input type="text" id="promo-input" placeholder="كود الخصم" class="flex-1 bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs text-white uppercase focus:outline-none" />
           <button onclick="applyPromoCode()" class="bg-brand-accent text-brand-black text-xs font-black px-3.5 py-1.5 rounded-xl transition">تطبيق</button>
         </div>
         <p id="promo-msg" class="hidden text-[11px] font-bold text-emerald-400"></p>
 
-        <!-- اختيار منطقة التوصيل -->
         <div>
           <label class="block text-xs font-bold text-gray-300 mb-1">منطقة التوصيل:</label>
           <select id="delivery-zone" onchange="updateCartState()" class="w-full bg-brand-black border border-brand-border rounded-xl p-2 text-xs text-white focus:outline-none">
@@ -476,6 +674,7 @@
           <div class="flex justify-between text-sm font-black text-white pt-1 border-t border-brand-border"><span>الحساب الكلي:</span><span id="total-val" class="text-brand-accent">0 ج.م</span></div>
         </div>
 
+        <!-- بيانات العميل المحفوظة تلقائياً -->
         <div class="space-y-2 pt-1">
           <input type="text" id="cust-name" placeholder="الاسم ثلاثي" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
           <input type="tel" id="cust-phone" placeholder="رقم الهاتف" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none" />
@@ -490,7 +689,7 @@
     </div>
   </div>
 
-  <!-- Customer Orders Modal (مخصصة للزبون فقط وبخصوصية كاملة) -->
+  <!-- Customer Orders Modal -->
   <div id="cust-orders-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       <div class="p-4 border-b border-brand-border flex items-center justify-between bg-brand-cardLight">
@@ -530,7 +729,7 @@
     </div>
   </div>
 
-  <!-- Thermal Kitchen Receipt Print (بون المطبخ 80mm) -->
+  <!-- Thermal Receipt Print -->
   <div id="thermal-receipt" class="hidden">
     <div class="receipt-body text-center font-mono">
       <h2 class="font-bold text-lg">*** GRILL & CRISPY ***</h2>
@@ -552,7 +751,6 @@
     const SUPABASE_KEY = "sb_publishable_LZHe7rl-SDSvWUF2gedu4w_lg59gDI_";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // معرف فريد لجهاز العميل لكي لا يرى أحد طلبات غيره
     let clientDeviceId = localStorage.getItem('client_device_token');
     if (!clientDeviceId) {
       clientDeviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
@@ -560,9 +758,12 @@
     }
 
     const defaultProducts = [
-      { id: 101, category: 'burgers', name: 'تريبل سماش برجر ديلوكس', price: 165, inStock: true, desc: '3 قطع لحم بلدي، 3 شرائح شيدر، بيف بيكون وصوص سماش.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
-      { id: 102, category: 'crispy', name: 'باكت كرسبي سوبريم 6 قطع', price: 180, inStock: true, desc: '6 قطع استربس، بطاطس عائلي، 2 كول سلو، 2 صوص و2 خبز.', img: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&auto=format&fit=crop&q=80' },
-      { id: 103, category: 'combos', name: 'عرض بوكس الصحاب (2+2)', price: 299, inStock: true, desc: '2 برجر دوبل، 2 زنجر كرسبي، لتر بيبسي، بطاطس لارج.', img: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&auto=format&fit=crop&q=80' }
+      { id: 101, category: 'burgers', name: 'تريبل سماش برجر ديلوكس', price: 165, inStock: true, desc: '3 قطع لحم بلدي مشوي، 3 شرائح شيدر، بيف بيكون وصوص سماش السري.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+      { id: 102, category: 'crispy', name: 'باكت كرسبي سوبريم 6 قطع', price: 180, inStock: true, desc: '6 قطع استربس دجاج مقرمش ذهبي، بطاطس عائلي، 2 كول سلو، 2 صوص و2 خبز بريوش.', img: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&auto=format&fit=crop&q=80' },
+      { id: 103, category: 'combos', name: 'عرض بوكس الصحاب (2+2)', price: 299, inStock: true, desc: '2 برجر دوبل، 2 زنجر كرسبي حار، لتر بيبسي، بطاطس لارج مع صوص الشيدر السايح.', img: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&auto=format&fit=crop&q=80' },
+      { id: 104, category: 'sides', name: 'بطاطس مقلية مبهّرة كرسبي', price: 35, inStock: true, desc: 'أصابع بطاطس مقلية ذهبية مع بهارات المطعم السرية الخاصة.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+      { id: 105, category: 'sides', name: 'كول سلو كلاسيك رانش', price: 25, inStock: true, desc: 'سلطة كرنب وجزر طازجة بالمايونيز الكريمي والعسل.', img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=600&auto=format&fit=crop&q=80' },
+      { id: 106, category: 'drinks', name: 'بيبسي كانز مثلج 330 مل', price: 20, inStock: true, desc: 'مشروب غازي منعش مع الوجبة.', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=80' }
     ];
 
     const defaultDeals = [
@@ -574,15 +775,24 @@
       { id: 'c2', name: 'كابتن طارق علي', phone: '01033334444', pin: '3344' }
     ];
 
+    const defaultPromoConfig = {
+      active: true,
+      code: "GRILL20",
+      percent: 20,
+      bannerText: "🔥 استخدم كود الخصم GRILL20 لخصم 20% على إجمالي طلبك!"
+    };
+
     let products = [...defaultProducts];
     let deals = JSON.parse(localStorage.getItem('cloud_deals')) || defaultDeals;
     let couriers = JSON.parse(localStorage.getItem('cloud_couriers')) || defaultCouriers;
+    let promoConfig = { ...defaultPromoConfig };
     let orders = [];
 
     let cart = [];
     let appliedDiscountPercent = 0;
     let currentCategory = 'all';
     let currentSlide = 0;
+    let currentSearchTerm = '';
 
     let authRole = sessionStorage.getItem('auth_role') || null;
     let loggedCourierId = sessionStorage.getItem('courier_id') || null;
@@ -600,15 +810,33 @@
     let tempDealImg = '';
     let alarmAudioInterval = null;
 
-    // جلب البيانات السحابية
+    // استرجاع بيانات العميل المحفوظة في جهازه
+    function loadSavedCustomerProfile() {
+      const saved = JSON.parse(localStorage.getItem('saved_cust_profile') || '{}');
+      if (saved.name) document.getElementById('cust-name').value = saved.name;
+      if (saved.phone) document.getElementById('cust-phone').value = saved.phone;
+      if (saved.address) document.getElementById('cust-address').value = saved.address;
+    }
+
+    // جلب البيانات السحابية الكاملة
     async function loadCloudData() {
-      // 1. جلب المنتجات السحابية
+      // 1. جلب إعدادات كود الخصم
+      try {
+        const { data: setRow } = await supabaseClient.from('app_settings').select('*').eq('id', 'promo_config').single();
+        if (setRow && setRow.data) {
+          promoConfig = setRow.data;
+        } else {
+          await supabaseClient.from('app_settings').upsert({ id: 'promo_config', data: defaultPromoConfig });
+        }
+      } catch (e) {}
+      applyPromoConfigUI();
+
+      // 2. جلب المنتجات السحابية
       try {
         const { data: pData } = await supabaseClient.from('products').select('*');
         if (pData && pData.length > 0) {
           products = pData.map(r => r.data);
         } else {
-          // نشر المنتجات الافتراضية
           for (const p of defaultProducts) {
             await supabaseClient.from('products').upsert({ id: p.id, data: p });
           }
@@ -617,12 +845,12 @@
       } catch (e) {
         products = [...defaultProducts];
       }
-      renderProducts(products);
+      filterCategory(currentCategory);
       renderDashboardMeals();
       renderDashboardBanners();
       renderSlider();
 
-      // 2. جلب الطلبات السحابية
+      // 3. جلب الطلبات السحابية
       try {
         const { data: oData } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (oData) {
@@ -631,17 +859,62 @@
       } catch (e) {}
 
       refreshAllViews();
+      renderLiveReviews();
+      renderReorderSection();
     }
 
-    // الاستماع السحابي الحي (Realtime Listener)
+    // تطبيق إعدادات كود الخصم في الواجهة
+    function applyPromoConfigUI() {
+      const topBar = document.getElementById('top-announcement-bar');
+      const textSpan = document.getElementById('announcement-text');
+      const promoInputBox = document.getElementById('promo-input-box');
+
+      if (promoConfig.active) {
+        topBar.classList.remove('hidden');
+        textSpan.innerText = promoConfig.bannerText;
+        promoInputBox.classList.remove('hidden');
+        document.getElementById('promo-input').placeholder = `كود الخصم (مثال: ${promoConfig.code})`;
+      } else {
+        topBar.classList.add('hidden');
+        promoInputBox.classList.add('hidden');
+        appliedDiscountPercent = 0;
+        updateCartState();
+      }
+
+      // في لوحة الإدارة
+      document.getElementById('admin-promo-active').checked = promoConfig.active;
+      document.getElementById('admin-promo-code').value = promoConfig.code;
+      document.getElementById('admin-promo-percent').value = promoConfig.percent;
+      document.getElementById('admin-promo-text').value = promoConfig.bannerText;
+    }
+
+    // حفظ كود الخصم من لوحة الإدارة
+    async function savePromoSettingsToCloud() {
+      const active = document.getElementById('admin-promo-active').checked;
+      const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
+      const percent = parseInt(document.getElementById('admin-promo-percent').value) || 0;
+      const bannerText = document.getElementById('admin-promo-text').value.trim();
+
+      if (!code || percent <= 0) return alert('يرجى تحديد كود الخصم ونسبة مئوية صحيحة');
+
+      promoConfig = { active, code, percent, bannerText };
+      await supabaseClient.from('app_settings').upsert({ id: 'promo_config', data: promoConfig });
+      applyPromoConfigUI();
+      alert('🎉 تم حفظ وتحديث كود الخصم والإعلانات سحابياً فوراً!');
+    }
+
+    // الاستماع السحابي الحي
     supabaseClient
-      .channel('schema-changes-all')
+      .channel('schema-changes-all-pos')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadCloudData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => loadCloudData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, () => loadCloudData())
       .subscribe();
 
     function refreshAllViews() {
       renderCustomerOrders();
+      renderReorderSection();
+      renderLiveReviews();
       if (authRole === 'admin') {
         renderDashboardOrders();
         renderSettlementRegister();
@@ -659,7 +932,88 @@
       localStorage.setItem('cloud_couriers', JSON.stringify(couriers));
     }
 
-    // 2. Navigation & Login Gateway
+    // عرض التقييمات الحية في المتجر
+    function renderLiveReviews() {
+      const reviewsGrid = document.getElementById('live-reviews-grid');
+      const reviewedOrders = orders.filter(o => o.rating && o.rating > 0);
+
+      const staticReviews = [
+        { name: "أحمد محمود", feedback: "أقوى سماش برجر أكلته، اللحم طازج بلدي والعيش هش جداً والصوصات موزونة بالملي!", rating: 5 },
+        { name: "محمد سامي", feedback: "الاستربس مقرمش من بره وطري جداً من جوه مش ناشف، والتوصيل وصل سخن ملهلب في أقل من 30 دقيقة.", rating: 5 },
+        { name: "عمر خالد", feedback: "عروض بوكس الصحاب موفرة جداً وجودتها ممتازة، وميزة تتبع الأوردر ومعرفة الكابتن مريحة جداً.", rating: 5 }
+      ];
+
+      const allReviews = [...reviewedOrders.map(o => ({
+        name: o.customerName || "عميل",
+        feedback: o.ratingFeedback || "تجربة ممتازة جداً وأكل لذيذ وساخن!",
+        rating: o.rating
+      })), ...staticReviews];
+
+      let avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+      document.getElementById('reviews-average-text').innerText = `⭐ متوسط التقييم العام ${avg.toFixed(1)}/5 من أصل ${allReviews.length}+ تقييم معتمد`;
+
+      reviewsGrid.innerHTML = allReviews.slice(0, 6).map(r => `
+        <div class="bg-brand-card border border-brand-border p-4 rounded-3xl space-y-2 shadow-xl">
+          <div class="flex text-amber-400 text-sm">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          <p class="text-xs text-gray-300 italic line-clamp-3">"${r.feedback}"</p>
+          <div class="flex items-center gap-2 pt-2 border-t border-brand-border/60">
+            <div class="w-7 h-7 rounded-full bg-brand-primary flex items-center justify-center text-[10px] font-bold text-white">${r.name.slice(0, 2)}</div>
+            <span class="text-xs font-bold text-white">${r.name}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // سكشن أعد طلبك المفضل
+    function renderReorderSection() {
+      const section = document.getElementById('reorder-section');
+      const box = document.getElementById('reorder-items-box');
+      const myPreviousOrders = orders.filter(o => o.clientDeviceId === clientDeviceId);
+
+      if (myPreviousOrders.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      const lastOrder = myPreviousOrders[0];
+
+      box.innerHTML = lastOrder.items.map(item => `
+        <div class="bg-brand-black border border-brand-border p-3 rounded-2xl flex items-center justify-between gap-3 min-w-[280px] flex-shrink-0">
+          <div class="flex-1">
+            <h4 class="font-bold text-xs text-white">${item.name} (${item.size})</h4>
+            ${item.addons && item.addons.length ? `<p class="text-[10px] text-brand-accent">+ ${item.addons.join('، ')}</p>` : ''}
+            <span class="text-xs font-black text-brand-accent">${item.unitPrice * (item.qty || 1)} ج.م</span>
+          </div>
+          <button onclick="reorderItemDirectly(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="bg-brand-primary hover:bg-red-600 text-white font-black text-[11px] px-3.5 py-2 rounded-xl transition shadow flex items-center gap-1">
+            <span>🔁 أضف للسلة</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function reorderItemDirectly(item) {
+      cart.push({
+        id: Date.now() + Math.random(),
+        customKey: `${item.productId || 101}_${item.size}_${(item.addons||[]).sort().join('|')}_${item.notes||''}`,
+        name: item.name,
+        size: item.size,
+        addons: item.addons || [],
+        notes: item.notes || '',
+        unitPrice: item.unitPrice,
+        qty: item.qty || 1
+      });
+      updateCartState();
+      showToast(`✅ تمت إضافة (${item.name}) مباشرة للسلة!`);
+    }
+
+    // البحث اللحظي في المنيو
+    function handleMenuSearch(val) {
+      currentSearchTerm = val.trim().toLowerCase();
+      filterCategory(currentCategory);
+    }
+
+    // التنقل وتسجيل الدخول
     function navigateView(viewName) {
       document.getElementById('view-storefront').classList.toggle('hidden', viewName !== 'storefront');
       document.getElementById('view-login-gate').classList.toggle('hidden', viewName !== 'login-gate');
@@ -674,6 +1028,7 @@
         renderDashboardBanners();
         renderAdminCouriersList();
         checkNewOrdersAlarm();
+        applyPromoConfigUI();
       } else if (viewName === 'courier-dashboard') {
         renderCourierDashboard();
       }
@@ -741,7 +1096,7 @@
       navigateView('storefront');
     }
 
-    // 3. Audio Alarm
+    // التنبيه الصوتي
     function checkNewOrdersAlarm() {
       const hasPending = orders.some(o => o.status === 'pending');
       const banner = document.getElementById('alarm-banner');
@@ -781,27 +1136,32 @@
       document.getElementById('alarm-banner').classList.add('hidden');
     }
 
-    // 4. Products & Customizer Modal
+    // عرض الوجبات وتخصيصها
     function renderProducts(items) {
       const grid = document.getElementById('items-grid');
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-xs">لا توجد وجبات تطابق بحثك حالياً. 🔍</div>`;
+        return;
+      }
+
       grid.innerHTML = items.map(item => `
-        <div id="product-card-${item.id}" class="bg-brand-card rounded-2xl overflow-hidden border border-brand-border flex flex-col justify-between group hover:border-brand-primary/40 transition ${!item.inStock ? 'opacity-50 grayscale' : ''}">
-          <div class="relative h-40 overflow-hidden">
-            <img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-            <span class="absolute bottom-2 left-2 bg-brand-black/85 text-brand-accent font-black text-xs px-2.5 py-1 rounded-lg border border-white/10">${item.price} ج.م</span>
-            ${!item.inStock ? '<span class="absolute top-2 right-2 bg-red-600 text-white font-black text-[10px] px-2 py-0.5 rounded shadow">غير متوفر اليوم ❌</span>' : ''}
+        <div id="product-card-${item.id}" class="bg-brand-card rounded-3xl overflow-hidden border border-brand-border flex flex-col justify-between group hover:border-brand-primary/50 transition-all duration-300 shadow-xl ${!item.inStock ? 'opacity-50 grayscale' : ''}">
+          <div class="relative h-44 overflow-hidden">
+            <img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+            <span class="absolute bottom-2.5 left-2.5 bg-brand-black/90 backdrop-blur-md text-brand-accent font-black text-xs px-3 py-1.5 rounded-xl border border-white/10 shadow-lg">${item.price} ج.م</span>
+            ${!item.inStock ? '<span class="absolute top-3 right-3 bg-red-600 text-white font-black text-[10px] px-2.5 py-1 rounded-lg shadow">غير متوفر اليوم ❌</span>' : ''}
           </div>
           <div class="p-4 flex flex-col flex-1 justify-between gap-3">
             <div>
-              <h3 class="font-bold text-sm text-white mb-1">${item.name}</h3>
-              <p class="text-xs text-gray-400 line-clamp-2">${item.desc || ''}</p>
+              <h3 class="font-bold text-sm text-white mb-1 group-hover:text-brand-accent transition">${item.name}</h3>
+              <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed">${item.desc || ''}</p>
             </div>
             ${item.inStock ? `
-              <button onclick="openMealCustomizer(${item.id})" class="w-full bg-brand-primary/10 hover:bg-brand-primary text-brand-primary hover:text-white border border-brand-primary/30 py-2 rounded-xl text-xs font-bold transition">
-                + تخصيص واختيار الحجم 👈
+              <button onclick="openMealCustomizer(${item.id})" class="w-full bg-brand-primary hover:bg-red-600 text-white py-2.5 rounded-xl text-xs font-black transition shadow-lg flex items-center justify-center gap-1.5">
+                <span>+ تخصيص واختيار الحجم</span>
               </button>
             ` : `
-              <button disabled class="w-full bg-white/5 text-gray-500 py-2 rounded-xl text-xs font-bold cursor-not-allowed">
+              <button disabled class="w-full bg-white/5 text-gray-500 py-2.5 rounded-xl text-xs font-bold cursor-not-allowed">
                 نفذت الكمية بالمطبخ
               </button>
             `}
@@ -930,7 +1290,7 @@
       updateCartState();
     }
 
-    // 5. Cart, Promo & Order Placement
+    // إدارة السلة وتطبيق الخصم
     function updateCartState() {
       const container = document.getElementById('cart-items-container');
       const deliveryFee = parseInt(document.getElementById('delivery-zone').value) || 15;
@@ -941,7 +1301,7 @@
       let total = (subtotal - discountAmount) + (cart.length > 0 ? deliveryFee : 0);
 
       if (cart.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-gray-400 text-xs">السلة فارغة.</div>`;
+        container.innerHTML = `<div class="text-center py-12 text-gray-400 text-xs">السلة فارغة. تصفح المنيو وأضف وجباتك المفضلة!</div>`;
         document.getElementById('sticky-bar').classList.add('hidden');
       } else {
         container.innerHTML = cart.map((item, idx) => `
@@ -981,20 +1341,27 @@
       }
     }
 
-    function toggleCart(show) { document.getElementById('cart-drawer').classList.toggle('hidden', !show); }
+    function toggleCart(show) { 
+      document.getElementById('cart-drawer').classList.toggle('hidden', !show); 
+      if (show) loadSavedCustomerProfile();
+    }
 
     function applyPromoCode() {
       const code = document.getElementById('promo-input').value.trim().toUpperCase();
       const msg = document.getElementById('promo-msg');
 
-      if (code === 'GRILL20') {
-        appliedDiscountPercent = 20;
-        msg.innerText = '✅ تم تطبيق خصم 20% بنجاح على الفاتورة!';
-        msg.className = 'text-[11px] font-bold text-emerald-400';
+      if (!promoConfig.active) {
+        msg.innerText = '❌ كود الخصم غير مفعل حالياً';
+        msg.className = 'text-[11px] font-bold text-red-400';
         msg.classList.remove('hidden');
-      } else if (code === 'CRISPY10') {
-        appliedDiscountPercent = 10;
-        msg.innerText = '✅ تم تطبيق خصم 10% بنجاح!';
+        appliedDiscountPercent = 0;
+        updateCartState();
+        return;
+      }
+
+      if (code === promoConfig.code) {
+        appliedDiscountPercent = promoConfig.percent;
+        msg.innerText = `✅ تم تطبيق خصم ${promoConfig.percent}% بنجاح على الفاتورة!`;
         msg.className = 'text-[11px] font-bold text-emerald-400';
         msg.classList.remove('hidden');
       } else {
@@ -1034,6 +1401,9 @@
 
       if (!name || !phone || !address) return alert('يرجى ملء الاسم ورقم الهاتف والعنوان بالتفصيل');
 
+      // حفظ بيانات العميل في جهازه للطلبات القادمة
+      localStorage.setItem('saved_cust_profile', JSON.stringify({ name, phone, address }));
+
       let subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
       let discountAmount = Math.round((subtotal * appliedDiscountPercent) / 100);
       let finalTotal = (subtotal - discountAmount) + deliveryFee;
@@ -1041,7 +1411,7 @@
       const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
       const newOrder = {
         id: orderId,
-        clientDeviceId: clientDeviceId, // ربط الطلب بجهاز العميل لضمان الخصوصية
+        clientDeviceId: clientDeviceId,
         customerName: name,
         customerPhone: phone,
         address: address,
@@ -1063,13 +1433,17 @@
         assignedCourierId: null,
         cashSettled: false,
         rating: null,
+        ratingFeedback: null,
         createdAt: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
         messages: [
           { sender: 'system', text: `تم استلام طلبك برقم ${orderId} وهو قيد المراجعة في المطبخ.`, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }
         ]
       };
 
-      // الحفظ سحابياً في Supabase
+      // إضافة فورية في الذاكرة لتظهر في نافذة طلباتي بدون أي تأخير
+      orders.unshift(newOrder);
+      renderCustomerOrders();
+
       await supabaseClient.from('orders').upsert({ id: newOrder.id, data: newOrder });
 
       cart = [];
@@ -1077,17 +1451,11 @@
       updateCartState();
       toggleCart(false);
 
-      document.getElementById('cust-name').value = '';
-      document.getElementById('cust-phone').value = '';
-      document.getElementById('cust-address').value = '';
-      document.getElementById('cust-geo-coords').value = '';
-      document.getElementById('gps-btn').innerText = '📍 تحديد موقعي الحالي عبر GPS';
-
-      alert(`🎉 تم إرسال طلبك سحابياً رقم: ${orderId}`);
+      showToast(`🎉 تم إرسال طلبك سحابياً رقم: ${orderId}`);
       toggleCustomerOrders(true);
     }
 
-    // 6. Thermal Print
+    // طباعة البون
     function printKitchenReceipt(orderId) {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
@@ -1102,7 +1470,7 @@
 
       document.getElementById('receipt-items').innerHTML = order.items.map(item => `
         <div class="flex justify-between">
-          <span>${item.qty}x ${item.name} (${item.size}) ${item.addons.length ? `[+${item.addons.join(',')}]` : ''}</span>
+          <span>${item.qty}x ${item.name} (${item.size}) ${item.addons && item.addons.length ? `[+${item.addons.join(',')}]` : ''}</span>
           <span>${item.price} ج.م</span>
         </div>
         ${item.notes ? `<p style="font-size:9px; color:#555;">--> ${item.notes}</p>` : ''}
@@ -1118,7 +1486,7 @@
       window.print();
     }
 
-    // 7. Customer Orders, Chat & Rating
+    // متابعة الطلبات والشات والتقييم
     function getMessageStats(messages = []) {
       let custCount = 0, adminCount = 0;
       messages.forEach(m => {
@@ -1137,7 +1505,6 @@
       const container = document.getElementById('cust-orders-list');
       const badge = document.getElementById('cust-orders-badge');
 
-      // فلترة: الزبون يرى فقط طلباته هو
       const myOrders = orders.filter(o => o.clientDeviceId === clientDeviceId);
 
       if (myOrders.length === 0) {
@@ -1219,7 +1586,8 @@
         await supabaseClient.from('orders').upsert({ id: order.id, data: order });
         document.getElementById('rating-modal').classList.add('hidden');
         renderCustomerOrders();
-        alert('شكراً لتقييمك الرائع! ❤️');
+        renderLiveReviews();
+        alert('شكراً لتقييمك الرائع! تم نشر رأيك في صفحة المطعم ❤️');
       }
     }
 
@@ -1280,9 +1648,9 @@
       }
     }
 
-    // 8. Admin Dashboard & Split Live Chat
+    // لوحة تحكم الإدارة
     function switchAdminSection(sec) {
-      ['orders', 'settlement', 'reports', 'couriers', 'meals', 'banners'].forEach(s => {
+      ['orders', 'promo', 'settlement', 'reports', 'couriers', 'meals', 'banners'].forEach(s => {
         document.getElementById(`admin-sec-${s}`).classList.toggle('hidden', s !== sec);
         const navBtn = document.getElementById(`nav-sec-${s}`);
         if (s === sec) {
@@ -1482,7 +1850,7 @@
       }
     }
 
-    // 9. Daily Shift Report & Settlement
+    // تقرير الوردية والعهد المالية
     function renderDailyReport() {
       const settledOrders = orders.filter(o => o.status === 'settled' || o.status === 'delivered');
       let totalRevenue = 0;
@@ -1601,7 +1969,7 @@
       }
     }
 
-    // 10. Courier Dashboard
+    // شاشة الطيار
     function renderCourierDashboard() {
       const courier = couriers.find(c => c.id === loggedCourierId);
       if (!courier) return;
@@ -1656,14 +2024,14 @@
       }
     }
 
-    // 11. Meals Management & Stock Control (Cloud Sync)
+    // إدارة وتعديل الوجبات
     async function toggleMealStock(id) {
       const item = products.find(p => p.id === id);
       if (item) {
         item.inStock = !item.inStock;
         await supabaseClient.from('products').upsert({ id: item.id, data: item });
         renderDashboardMeals();
-        renderProducts(products);
+        filterCategory(currentCategory);
       }
     }
 
@@ -1671,20 +2039,65 @@
       document.getElementById('dash-meals-grid').innerHTML = products.map(item => `
         <div class="bg-brand-card p-3 rounded-2xl border border-brand-border flex items-center justify-between gap-2 ${!item.inStock ? 'border-red-500/40 bg-red-950/10' : ''}">
           <div class="flex items-center gap-3">
-            <img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-12 h-12 rounded-xl object-cover" />
+            <img src="${item.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" class="w-12 h-12 rounded-xl object-cover border border-brand-border" />
             <div>
               <p class="font-bold text-xs text-white">${item.name}</p>
               <p class="text-[11px] text-brand-accent font-semibold">${item.price} ج.م</p>
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <button onclick="toggleMealStock(${item.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold transition ${item.inStock ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">
-              ${item.inStock ? 'متوفر بالمطبخ ✅' : 'غير متوفر ❌'}
+            <button onclick="toggleMealStock(${item.id})" class="text-xs px-2 py-1 rounded-lg font-bold transition ${item.inStock ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">
+              ${item.inStock ? 'متوفر ✅' : 'غير متوفر ❌'}
             </button>
-            <button onclick="deleteMeal(${item.id})" class="text-xs bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2 py-1 rounded-lg">حذف</button>
+            <button onclick="editMeal(${item.id})" class="text-xs bg-brand-accent/20 text-brand-accent hover:bg-brand-accent hover:text-black px-2 py-1 rounded-lg font-bold transition">
+              ✏️ تعديل
+            </button>
+            <button onclick="deleteMeal(${item.id})" class="text-xs bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2 py-1 rounded-lg transition">
+              🗑️ حذف
+            </button>
           </div>
         </div>
       `).join('');
+    }
+
+    function editMeal(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-meal-id').value = item.id;
+      document.getElementById('meal-name').value = item.name;
+      document.getElementById('meal-price').value = item.price;
+      document.getElementById('meal-cat').value = item.category;
+      document.getElementById('meal-desc').value = item.desc || '';
+      document.getElementById('meal-img-url-direct').value = item.img || '';
+
+      if (item.img) {
+        document.getElementById('meal-preview').src = item.img;
+        document.getElementById('meal-preview-box').classList.remove('hidden');
+        tempMealImg = item.img;
+      }
+
+      document.getElementById('meal-form-title').innerText = `✏️ تعديل وجبة: ${item.name}`;
+      document.getElementById('meal-submit-btn').innerText = '💾 حفظ التعديلات سحابياً';
+      document.getElementById('meal-submit-btn').className = 'w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-2.5 rounded-xl transition shadow-lg';
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+      document.getElementById('meal-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function resetMealForm() {
+      document.getElementById('edit-meal-id').value = '';
+      document.getElementById('meal-name').value = '';
+      document.getElementById('meal-price').value = '';
+      document.getElementById('meal-desc').value = '';
+      document.getElementById('meal-img-url-direct').value = '';
+      document.getElementById('meal-image-file').value = '';
+      document.getElementById('meal-preview-box').classList.add('hidden');
+      document.getElementById('meal-form-title').innerText = '➕ إضافة صنف جديد (يُنشر سحابياً للجميع)';
+      document.getElementById('meal-submit-btn').innerText = '+ نشر الصنف سحابياً فوراً';
+      document.getElementById('meal-submit-btn').className = 'w-full bg-brand-primary hover:bg-red-600 text-white text-xs font-black py-2.5 rounded-xl transition';
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      tempMealImg = '';
     }
 
     function previewImage(event, imgId, boxId) {
@@ -1726,21 +2139,8 @@
       await supabaseClient.from('products').upsert({ id: mealObj.id, data: mealObj });
 
       resetMealForm();
-      alert('🎉 تم نشر الوجبة سحابياً بنجاح وتظهر الآن لجميع الزوار!');
+      alert('🎉 تم حفظ ونشر الصنف سحابياً بنجاح وتحديثه لجميع الزوار!');
       loadCloudData();
-    }
-
-    function resetMealForm() {
-      document.getElementById('edit-meal-id').value = '';
-      document.getElementById('meal-name').value = '';
-      document.getElementById('meal-price').value = '';
-      document.getElementById('meal-desc').value = '';
-      document.getElementById('meal-img-url-direct').value = '';
-      document.getElementById('meal-image-file').value = '';
-      document.getElementById('meal-preview-box').classList.add('hidden');
-      document.getElementById('meal-form-title').innerText = '➕ إضافة وجبة جديدة (تُنشر سحابياً للجميع)';
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
-      tempMealImg = '';
     }
 
     async function deleteMeal(id) {
@@ -1752,7 +2152,7 @@
       }
     }
 
-    // 12. Couriers Management
+    // إدارة الطيارين
     function renderAdminCouriersList() {
       const list = document.getElementById('admin-couriers-list');
       list.innerHTML = couriers.map(c => `
@@ -1791,7 +2191,7 @@
       }
     }
 
-    // 13. Slider & Deals Management
+    // السلايدر والضغط على البانر
     function renderSlider() {
       const track = document.getElementById('slider-track');
       const dots = document.getElementById('slider-dots');
@@ -1804,10 +2204,10 @@
       section.classList.remove('hidden');
 
       track.innerHTML = deals.map(deal => `
-        <div class="min-w-full relative h-48 sm:h-64 cursor-pointer overflow-hidden flex-shrink-0" onclick="goToProduct(${deal.linkedItemId})">
+        <div class="min-w-full relative h-48 sm:h-64 cursor-pointer overflow-hidden flex-shrink-0" onclick="triggerDealAction(${deal.linkedItemId})">
           <img src="${deal.bannerImg}" class="w-full h-full object-cover brightness-[0.75]" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-4 sm:p-6">
-            <span class="bg-brand-accent text-black font-black text-[10px] px-2 py-0.5 rounded w-max mb-1">عرض خاص 🔥</span>
+            <span class="bg-brand-accent text-black font-black text-[10px] px-2 py-0.5 rounded w-max mb-1">عرض خاص 🔥 اضغط للطلب</span>
             <h2 class="text-white font-black text-sm sm:text-xl">${deal.title}</h2>
           </div>
         </div>
@@ -1823,12 +2223,14 @@
     function prevSlide() { if(deals.length > 1) { currentSlide = (currentSlide - 1 + deals.length) % deals.length; renderSlider(); } }
     function goToSlide(i) { currentSlide = i; renderSlider(); }
 
-    function goToProduct(id) {
+    // تنفيذ العرض فور الضغط على البانر
+    function triggerDealAction(linkedId) {
       filterCategory('all');
       setTimeout(() => {
-        const el = document.getElementById(`product-card-${id}`);
+        const el = document.getElementById(`product-card-${linkedId}`);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+        openMealCustomizer(linkedId);
+      }, 150);
     }
 
     function addDealBanner() {
@@ -1872,20 +2274,39 @@
 
     function filterCategory(cat, btn) {
       currentCategory = cat;
+      const titles = {
+        all: 'قائمة الطعام المختارة 🔥',
+        burgers: 'سندوتشات البرجر البلدي 🍔',
+        crispy: 'وجبات الفرايد تشيكن المقرمشة 🍗',
+        combos: 'عروض وتوفير الصحاب والعائلات 💥',
+        sides: 'المقبلات اللذيذة والصوصات 🍟',
+        drinks: 'المشروبات الغازية المنعشة 🥤'
+      };
+      document.getElementById('category-title').innerText = titles[cat] || 'قائمة الطعام';
+
       document.querySelectorAll('.cat-btn').forEach(b => {
-        b.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary');
+        b.classList.remove('bg-brand-primary', 'text-white', 'border-brand-primary', 'shadow-lg');
         b.classList.add('bg-brand-card', 'text-gray-300', 'border-brand-border');
       });
       if (btn) {
-        btn.classList.add('bg-brand-primary', 'text-white', 'border-brand-primary');
+        btn.classList.add('bg-brand-primary', 'text-white', 'border-brand-primary', 'shadow-lg');
         btn.classList.remove('bg-brand-card', 'text-gray-300', 'border-brand-border');
       }
-      if (cat === 'all') renderProducts(products);
-      else renderProducts(products.filter(p => p.category === cat));
+
+      let filtered = products;
+      if (cat !== 'all') {
+        filtered = filtered.filter(p => p.category === cat);
+      }
+      if (currentSearchTerm) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearchTerm) || (p.desc && p.desc.toLowerCase().includes(currentSearchTerm)));
+      }
+
+      renderProducts(filtered);
     }
 
-    // 14. App Initialization
+    // بدء تشغيل النظام
     loadCloudData();
+    loadSavedCustomerProfile();
     updateCartState();
     if (authRole === 'admin') navigateView('admin-dashboard');
     else if (authRole === 'courier') navigateView('courier-dashboard');
